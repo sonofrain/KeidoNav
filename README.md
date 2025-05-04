@@ -21,24 +21,23 @@
 在你的 serv00 实例（或任何网络服务器）上设置 KeidoNav 非常简单：
 
 *   核心：将 KeidoNav 项目中的 **所有** 文件和文件夹（`index.html`, `scripts/`, `images/`, `generate_image_list.sh` 等）直接放入网站目录中。
-
-# 最简化操作
-
-进入网站目录
 serv00的网址目录为 /domains/你的域名/public_html/
 
-确保已安装 Git 和 rsync
+*   可选方法
 
-你可以使用以下命令一次性完成克隆、复制、设置权限、运行脚本和清理临时目录的操作：
+git clone https://github.com/sonofrain/KeidoNav.git 你的网站目录
+
+这个方法要求你的网站目录必须是空目录
+
+进入网站目录运行
+
+
 
 ```sh
 
 
-git clone https://github.com/sonofrain/KeidoNav.git temp && \
-rsync -av --delete temp/ . && \
-chmod +x temp/generate_image_list.sh && \
-temp/generate_image_list.sh && \
-rm -rf temp
+chmod +x ./generate_image_list.sh && \
+./generate_image_list.sh && \
 ```
 
 
