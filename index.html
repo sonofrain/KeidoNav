@@ -547,126 +547,103 @@
 
     </script>
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // --- 一言 API 获取 ---
-            const quoteElement = document.getElementById('hitokoto-quote');
-            const apiUrl = 'https://v1.hitokoto.cn/?c=b'; // Your API endpoint
-            const defaultQuote = '愿你走出半生，归来仍是少年。'; // Your default fallback quote
-    
-            fetch(apiUrl)
-                .then(response => {
-                    // Check if the request was successful (status code 200-299)
-                    if (!response.ok) {
-                        // If not successful, throw an error to be caught by .catch()
-                        throw new Error(`HTTP error! status: ${response.status}`);
-                    }
-                    // Parse the JSON response
-                    return response.json();
-                })
-                .then(data => {
-                    // Check if the expected 'hitokoto' field exists in the response data
-                    if (data && data.hitokoto) {
-                        // If yes, update the paragraph text with the fetched quote
-                        // quoteElement.textContent = data.hitokoto;
-                        quoteElement.textContent = data.hitokoto + " —— " + data.from;
-
-                        // Optional: You could also add the source like this:
-                        // if (data.from) {
-                        //    quoteElement.textContent += ` —— ${data.from}`;
-                        // }
-                    } else {
-                        // If the data format is unexpected, log a warning and use the default
-                        console.warn('API response did not contain hitokoto field:', data);
-                        quoteElement.textContent = defaultQuote;
-                    }
-                })
-                .catch(error => {
-                    // This block catches network errors or errors thrown from the .then() blocks
-                    console.error('获取一言失败:', error);
-                    // Display the default quote in case of any error
-                    quoteElement.textContent = defaultQuote;
-                });
-    
-            // --- 更新版权年份 ---
-            const yearSpan = document.getElementById('current-year');
-            if (yearSpan) {
-                yearSpan.textContent = new Date().getFullYear();
-            } else {
-                 console.warn('Element with ID "current-year" not found.');
-            }
-        });
-    </script>
-    <script>
         document.addEventListener('DOMContentLoaded', () => {
-            // --- 图片列表配置 ---
-            // !!! 重要: 请手动在此处添加你所有的图片路径 !!!
-            // 电脑壁纸列表 (相对于 HTML 文件的路径)
-            const computerImages = [
-                "images/background/computer/__castorice_honkai_and_1_more_drawn_by_xiaohutu__d68c61adb76d254574242a67f69ae910.jpg"
-                // ... 添加更多电脑壁纸路径
-            ];
+            // Define variables in the broader scope if needed elsewhere,
+            // but they will be populated asynchronously.
+            let computerImages = [];
+            let mobileImages = [];
 
-            // 手机壁纸列表 (相对于 HTML 文件的路径)
-            const mobileImages = [
-                'images/background/mobile/__aventurine_and_topaz_honkai_and_1_more__483d4afa4c9b0501aab4fd4634ab4960.jpg'
-                // ... 添加更多手机壁纸路径
-            ];
-            // --- 图片列表配置结束 ---
-
-            // --- 设备检测函数 ---
+            // --- Device detection function ---
             function isMobileDevice() {
-                // 结合 User Agent 和屏幕宽度进行判断可能更准确，这里使用常见的 User Agent 检测
                 const userAgent = navigator.userAgent || navigator.vendor || window.opera;
-                // 使用正则表达式检测常见的移动设备关键字
                 if (/android|webos|iphone|ipad|ipod|blackberry|iemobile|opera mini/i.test(userAgent.toLowerCase())) {
                     return true;
                 }
-                // 可以选择性地加入屏幕宽度判断作为补充
-                // if (window.innerWidth < 768) { // 例如小于 768px 认为是移动设备
-                //     return true;
-                // }
+                // Optional: Add screen width check if needed
+                // if (window.innerWidth < 768) return true;
                 return false;
             }
-            // --- 设备检测函数结束 ---
 
-            // --- 主要逻辑 ---
-            try {
-                const isMobile = isMobileDevice();
-                const imageList = isMobile ? mobileImages : computerImages;
+            // --- Function to set the background ---
+            // Moved the main logic into its own function for clarity
+            function setRandomBackground() {
+                try {
+                    const isMobile = isMobileDevice();
+                    // Use the already populated arrays
+                    const imageList = isMobile ? mobileImages : computerImages;
 
-                // 检查列表是否为空
-                if (!imageList || imageList.length === 0) {
-                    console.warn(`No images found for ${isMobile ? 'mobile' : 'computer'} devices. Background not set.`);
-                    // 可选：设置一个默认背景或保持 CSS 中的设置
-                    // document.body.style.backgroundImage = 'linear-gradient(rgba(0, 0, 0, var(--bg-overlay-opacity)), rgba(0, 0, 0, var(--bg-overlay-opacity)))';
-                    return; // 退出函数
+                    // Check if the relevant list is populated and has images
+                    if (!imageList || imageList.length === 0) {
+                        // Log a warning if the lists were loaded but empty for the device type
+                        if (computerImages.length > 0 || mobileImages.length > 0) {
+                            console.warn(`Image list loaded, but no images found for ${isMobile ? 'mobile' : 'computer'} devices. Background not set.`);
+                        } else {
+                            // This case might happen if JSON loaded but both arrays were empty in the file
+                            console.warn(`Image lists loaded, but both computer and mobile lists are empty. Background not set.`);
+                        }
+                        // Optional: Set a default background here if needed when lists are empty
+                        // document.body.style.backgroundImage = 'linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7))';
+                        return; // Exit function
+                    }
+
+                    // Randomly select an image
+                    const randomIndex = Math.floor(Math.random() * imageList.length);
+                    const selectedImageUrl = imageList[randomIndex];
+
+                    // Build CSS background-image string
+                    // Ensure your CSS defines --bg-overlay-opacity
+                    const gradientOverlay = `linear-gradient(rgba(0, 0, 0, var(--bg-overlay-opacity, 0.5)), rgba(0, 0, 0, var(--bg-overlay-opacity, 0.5)))`; // Added fallback opacity
+                    const finalBackgroundImage = `${gradientOverlay}, url('${selectedImageUrl}')`;
+
+                    // Apply background
+                    document.body.style.backgroundImage = finalBackgroundImage;
+
+                    // CSS handles size, position, attachment
+                    console.log(`Set background for ${isMobile ? 'mobile' : 'computer'}: ${selectedImageUrl}`);
+
+                } catch (error) {
+                    console.error("Error setting background image:", error);
+                    // Fallback background in case of errors during setting (e.g., invalid URL format)
+                    document.body.style.backgroundImage = 'linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7))';
                 }
-
-                // 随机选择一张图片
-                const randomIndex = Math.floor(Math.random() * imageList.length);
-                const selectedImageUrl = imageList[randomIndex];
-
-                // 构建 CSS background-image 字符串，包含渐变叠加层
-                // 注意：这里假设你的 CSS 中已经定义了 --bg-overlay-opacity 变量
-                const gradientOverlay = `linear-gradient(rgba(0, 0, 0, var(--bg-overlay-opacity)), rgba(0, 0, 0, var(--bg-overlay-opacity)))`;
-                const finalBackgroundImage = `${gradientOverlay}, url('${selectedImageUrl}')`;
-
-                // 应用背景图片到 body
-                document.body.style.backgroundImage = finalBackgroundImage;
-
-                // CSS 中已经设置了 background-size, position, attachment，无需在 JS 中重复设置
-                // document.body.style.backgroundSize = 'cover';
-                // document.body.style.backgroundPosition = 'center center';
-                // document.body.style.backgroundAttachment = 'fixed';
-
-                console.log(`Set background for ${isMobile ? 'mobile' : 'computer'}: ${selectedImageUrl}`);
-
-            } catch (error) {
-                console.error("Error setting background image:", error);
-                // 出错时，可以设置一个安全的默认背景
-                document.body.style.backgroundImage = 'linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7))'; // 深色叠加层
             }
-            // --- 主要逻辑结束 ---
+
+            // --- Async function to load image lists AND THEN set the background ---
+            async function loadImageListsAndSetupBackground() {
+                try {
+                    const response = await fetch('image_list.json'); // Path relative to HTML
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    const data = await response.json();
+
+                    // Populate the arrays
+                    computerImages = data.computerImages || []; // Use || [] as fallback
+                    mobileImages = data.mobileImages || [];   // Use || [] as fallback
+
+                    console.log("Successfully loaded image lists:");
+                    console.log("Computer Wallpapers:", computerImages);
+                    console.log("Mobile Wallpapers:", mobileImages);
+
+                    // --- CRITICAL: Call the background setting logic AFTER data is loaded ---
+                    setRandomBackground();
+
+                } catch (error) {
+                    console.error('Failed to load or parse image_list.json:', error);
+                    // Handle the error - e.g., set a default background or do nothing
+                    console.warn("Setting a default background due to loading error.");
+                    document.body.style.backgroundImage = 'linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7))';
+                    // Optionally, you could still call setRandomBackground() here
+                    // if you set default image paths within this catch block, e.g.:
+                    // computerImages = ["path/to/default/computer.jpg"];
+                    // mobileImages = ["path/to/default/mobile.jpg"];
+                    // setRandomBackground();
+                }
+            }
+
+            // --- Start the process ---
+            loadImageListsAndSetupBackground();
+
         });
     </script>
     
