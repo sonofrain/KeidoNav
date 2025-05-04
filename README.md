@@ -13,14 +13,34 @@
 *   🎨 **高度可定制:** 轻松更改链接、文本，特别是背景图片，以符合你的风格。
 *   🖼️ **动态背景:** 使用简单的脚本，自动为桌面（横屏）和移动设备（竖屏）选择合适的背景。当然，如果你喜欢，也可以设置固定的背景！
 *   🍃 **轻量 & 简洁:** 保持内容极简和专注。
-*   🔧 **Serv00 友好:** 
+*   🔧 **Serv00 友好** 
 
 
 ## 🚀 快速上手与使用
 
 在你的 serv00 实例（或任何网络服务器）上设置 KeidoNav 非常简单：
 
-*   将 KeidoNav 项目中的 **所有** 文件和文件夹（`index.html`, `scripts/`, `images/`, `generate_image_list.sh` 等）直接放入网站目录中。
+*   核心：将 KeidoNav 项目中的 **所有** 文件和文件夹（`index.html`, `scripts/`, `images/`, `generate_image_list.sh` 等）直接放入网站目录中。
+
+# 最简化操作
+
+进入网站目录
+serv00的网址目录为 /domains/你的域名/public_html/
+
+确保已安装 Git 和 rsync
+
+你可以使用以下命令一次性完成克隆、复制、设置权限、运行脚本和清理临时目录的操作：
+
+```sh
+
+复制代码
+git clone https://github.com/sonofrain/KeidoNav.git temp && \
+rsync -av --delete temp/ . && \
+chmod +x temp/generate_image_list.sh && \
+temp/generate_image_list.sh && \
+rm -rf temp
+```
+
 
 **(可选但推荐) 运行图像列表生成器:**
     *   如果你打算使用随机背景功能，你需要生成初始的图片列表。请参阅下面的“更新图片列表”部分了解**必要步骤**。
@@ -94,5 +114,7 @@
 ## 🛠️ 更新图片列表 (`generate_image_list.sh`)
 
 这个脚本会扫描 `computer` 和 `mobile` 背景图片文件夹，并创建 `image_list.json` 这个 json 文件，供 `randomPic.js` 使用。
+
+（可选）用cron设置定时任务。
 
 **🚨 必要条件:** 你的 serv00 系统（或任何运行此脚本的地方）**必须** 安装了 `bash`。
