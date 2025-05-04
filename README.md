@@ -33,7 +33,7 @@ serv00的网址目录为 /domains/你的域名/public_html/
 
 ```sh
 
-复制代码
+
 git clone https://github.com/sonofrain/KeidoNav.git temp && \
 rsync -av --delete temp/ . && \
 chmod +x temp/generate_image_list.sh && \
