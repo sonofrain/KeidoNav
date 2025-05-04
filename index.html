@@ -1,0 +1,675 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>整点薯条</title>
+    <style>
+        /* --- 全局和基础样式 --- */
+        :root {
+            /* --- 基础颜色 --- */
+            --primary-bg: #1c1c1e;
+            --card-bg: rgba(25, 28, 36, 0.6);
+            --card-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+
+            /* --- 文本颜色 --- */
+            --text-color: #F0F0F0;
+            --secondary-text-color: #D0D0D0;
+            --accent-color: #4A90E2;
+
+            /* --- 其他 --- */
+            --border-radius-base: 8px;
+            --border-radius-large: 12px;
+            --spacing-unit: 1rem;
+            --bg-overlay-opacity: 0.05;
+
+            /* --- 链接项颜色 --- */
+            --link-item-bg: rgba(45, 50, 60, 0.7);
+            --link-item-hover-bg: rgba(60, 65, 75, 0.85);
+            --border-color: rgba(255, 255, 255, 0.15);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+            color: var(--text-color);
+            line-height: 1.6;
+            padding: var(--spacing-unit);
+            background-color: var(--primary-bg);
+            /* background-image: linear-gradient(rgba(0, 0, 0, var(--bg-overlay-opacity)), rgba(0, 0, 0, var(--bg-overlay-opacity))), url('https://img.qlqqs.com/random'); */
+            background-size: cover;
+            background-position: center center;
+            background-attachment: fixed;
+            min-height: 100vh;
+            display: flex;
+            /* flex-direction: column; */
+        }
+
+        /* --- 容器 --- */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: calc(var(--spacing-unit) * 1.5);
+            background-color: var(--card-bg);
+            border-radius: var(--border-radius-large);
+            box-shadow: var(--card-shadow);
+            backdrop-filter: blur(0px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid var(--border-color);
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        main {
+            flex-grow: 1;
+        }
+
+        /* --- 页头 --- */
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            margin-bottom: calc(var(--spacing-unit) * 1.5);
+            padding-bottom: var(--spacing-unit);
+            border-bottom: 1px solid var(--border-color);
+            flex-shrink: 0;
+        }
+
+        .page-header h1 {
+            font-size: 1.8rem;
+            color: var(--text-color);
+            margin-bottom: calc(var(--spacing-unit) * 0.5);
+            text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+        }
+
+        .page-header .time-date {
+            font-size: 0.9rem;
+            color: var(--secondary-text-color);
+            text-align: right;
+            margin-bottom: calc(var(--spacing-unit) * 0.5);
+            text-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+        }
+
+        /* --- 搜索栏 --- */
+        .search-section {
+            margin-bottom: calc(var(--spacing-unit) * 2.5);
+            flex-shrink: 0;
+        }
+
+        #search-form {
+            display: flex;
+            flex-wrap: wrap;
+            gap: calc(var(--spacing-unit) * 0.75);
+            align-items: center;
+            background-color: rgba(255, 255, 255, 0.1);
+            padding: var(--spacing-unit);
+            border-radius: var(--border-radius-base);
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        #search-engine {
+            padding: calc(var(--spacing-unit) * 0.5) calc(var(--spacing-unit) * 0.75);
+            border: 1px solid #ccc;
+            border-radius: var(--border-radius-base);
+            background-color: #fff;
+            font-size: 0.9rem;
+            height: 40px;
+            flex-shrink: 0;
+            color: #333;
+        }
+
+        #search-query {
+            flex-grow: 1;
+            padding: calc(var(--spacing-unit) * 0.5) var(--spacing-unit);
+            border: 1px solid #ccc;
+            border-radius: var(--border-radius-base);
+            font-size: 1rem;
+            height: 40px;
+            min-width: 150px;
+            background-color: #fff;
+            color: #333;
+        }
+        #search-query:focus {
+             border-color: var(--accent-color);
+             outline: none;
+             box-shadow: 0 0 0 2px rgba(74, 144, 226, 0.3);
+        }
+
+        #search-button {
+            padding: calc(var(--spacing-unit) * 0.5) var(--spacing-unit);
+            background-color: var(--accent-color);
+            color: white;
+            border: none;
+            border-radius: var(--border-radius-base);
+            font-size: 1rem;
+            cursor: pointer;
+            height: 40px;
+            transition: background-color 0.3s ease;
+            flex-shrink: 0;
+        }
+
+        #search-button:hover {
+            background-color: #3a7bc8;
+        }
+
+        /* --- 导航分类 --- */
+        .category {
+            margin-bottom: calc(var(--spacing-unit) * 2.5);
+        }
+
+        .category h2 {
+            font-size: 1.3rem;
+            color: var(--text-color);
+            margin-bottom: var(--spacing-unit);
+            padding-bottom: calc(var(--spacing-unit) * 0.3);
+            border-bottom: 2px solid var(--accent-color);
+            display: inline-block;
+            text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+        }
+
+        /* --- 网址链接网格 --- */
+        .links-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: var(--spacing-unit);
+        }
+        /* minmax中的值为网址卡片宽度 */
+
+        /* --- 单个网址链接样式 --- */
+        .link-item {
+            display: flex;
+            align-items: center;
+            background-color: var(--link-item-bg);
+            padding: var(--spacing-unit);
+            border-radius: var(--border-radius-base);
+            text-decoration: none;
+            color: inherit;
+            transition: background-color 0.3s ease, box-shadow 0.3s ease, transform 0.2s ease;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .link-item:hover {
+            background-color: var(--link-item-hover-bg);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            transform: translateY(-3px);
+        }
+
+        /* MODIFIED: Styles for image icon */
+        .link-icon-img {
+            flex-shrink: 0;
+            width: 40px;  /* Icon size */
+            height: 40px; /* Icon size */
+            margin-right: var(--spacing-unit);
+            border-radius: 50%; /* Make it circular */
+            object-fit: cover; /* Scale image nicely, crop if needed */
+            display: block; /* Remove potential extra space below image */
+            background-color: rgba(255, 255, 255, 0.1); /* Fallback bg */
+        }
+        /* REMOVED: nth-child background colors for icons */
+
+        .link-text {
+            display: flex;
+            flex-direction: column;
+            overflow: hidden; /* Prevent text overflow */
+        }
+
+        .link-title {
+            font-weight: 600;
+            font-size: 1rem;
+            color: var(--text-color);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6);
+        }
+
+        .link-description {
+            font-size: 0.85rem;
+            color: var(--secondary-text-color);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            margin-top: 2px;
+            text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6);
+        }
+
+        /* --- 页脚 --- */
+        .page-footer {
+            text-align: center;
+            margin-top: calc(var(--spacing-unit) * 3);
+            padding-top: var(--spacing-unit);
+            border-top: 1px solid var(--border-color);
+            font-size: 0.85rem;
+            color: var(--secondary-text-color);
+            flex-shrink: 0;
+            text-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+        }
+
+        .page-footer p {
+             text-shadow: inherit;
+        }
+
+
+        /* --- 响应式调整 --- */
+        @media (max-width: 768px) {
+            body {
+                padding: calc(var(--spacing-unit) * 0.5);
+            }
+            .container {
+                padding: var(--spacing-unit);
+                backdrop-filter: blur(8px);
+                -webkit-backdrop-filter: blur(8px);
+            }
+             .page-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            .page-header .time-date {
+                text-align: left;
+                margin-top: calc(var(--spacing-unit) * 0.5);
+            }
+            .page-header h1 {
+                font-size: 1.6rem;
+            }
+             #search-form {
+                 flex-direction: column;
+                 align-items: stretch;
+             }
+             #search-engine, #search-query, #search-button {
+                 width: 100%;
+             }
+             .links-grid {
+                 grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+             }
+             .link-item {
+                 padding: calc(var(--spacing-unit) * 0.8);
+             }
+             /* MODIFIED: Adjust image icon size for smaller screens */
+             .link-icon-img {
+                 width: 35px;
+                 height: 35px;
+                 margin-right: calc(var(--spacing-unit) * 0.8);
+             }
+             .link-title {
+                 font-size: 0.95rem;
+             }
+             .link-description {
+                 font-size: 0.8rem;
+             }
+        }
+
+        @media (max-width: 480px) {
+             .links-grid {
+                 grid-template-columns: 1fr; /* Force single column */
+             }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <header class="page-header">
+            <h1>整点薯条</h1>
+            <div class="time-date" id="time-date">正在加载时间...</div>
+        </header>
+
+        <section class="search-section">
+            <form id="search-form">
+                <select id="search-engine">
+                    <option value="https://www.google.com/search?q=">Google</option>
+                    <option value="https://www.bing.com/search?q=">Bing</option>
+                    <option value="https://www.baidu.com/s?wd=">Baidu</option>
+                    <option value="https://duckduckgo.com/?q=">DuckDuckGo</option>
+                </select>
+                <input type="text" id="search-query" placeholder="输入搜索内容..." autocomplete="off">
+                <button type="submit" id="search-button">搜索</button>
+            </form>
+        </section>
+
+        <main>
+            <section class="category">
+                <h2>随便看看</h2>
+                <div class="links-grid">
+                    <!-- MODIFIED: Example with image icon using Google Favicon service -->
+                    <a href="https://linux.do" class="link-item">
+                        <img class="link-icon-img" src="images/icon/linuxdo.png" alt="Linux.do 图标">
+                        <div class="link-text">
+                            <span class="link-title">Linux.do</span>
+                            <span class="link-description">真诚、友善、团结、专业</span>
+                        </div>
+                    </a>
+                    <a href="https://www.bilibili.com" class="link-item">
+                        <img class="link-icon-img" src="images/icon/bilibili.jfif" alt="哔哩哔哩 图标">
+                        <div class="link-text">
+                            <span class="link-title">哔哩哔哩</span>
+                            <span class="link-description">国内知名的视频弹幕网站</span>
+                        </div>
+                    </a>
+                    <a href="https://www.youtube.com" class="link-item">
+                        <img class="link-icon-img" src="images/icon/youtube.png" alt="YouTube 图标">
+                        <div class="link-text">
+                            <span class="link-title">YouTube</span>
+                            <span class="link-description">全球最大的视频分享网站</span>
+                        </div>
+                    </a>
+                    <a href="https://tpml.ebook.hyread.com.tw/" class="link-item">
+                        <img class="link-icon-img" src="images/icon/taibel-library.png" alt="HyRead ebook 图标">
+                        <div class="link-text">
+                            <span class="link-title">HyRead ebook (臺北市立圖書館)</span>
+                            <span class="link-description">台北市立图书馆电子书平台</span>
+                        </div>
+                    </a>
+                    <a href="https://library.thekono.com/categories/32" class="link-item">
+                        <img class="link-icon-img" src="images/icon/kono-magazine.png" alt="Kono Libraries 图标">
+                        <div class="link-text">
+                            <span class="link-title">Kono Libraries (雜誌)</span>
+                            <span class="link-description">Kono 图书馆电子杂志</span>
+                        </div>
+                    </a>
+                    <a href="https://magazine.rakuten.co.jp/" class="link-item">
+                        <img class="link-icon-img" src="images/icon/rakuten-magazine.png" alt="楽天マガジン 图标">
+                        <div class="link-text">
+                            <span class="link-title">楽天マガジン (Rakuten Magazine)</span>
+                            <span class="link-description">日本乐天电子杂志服务</span>
+                        </div>
+                    </a>
+                    <!-- Add more links with image icons here -->
+                </div>
+            </section>
+
+            <section class="category">
+                <h2>AI</h2>
+                <div class="links-grid">
+                        <a href="https://x666.me/detail" class="link-item">
+                            <img class="link-icon-img" src="images/icon/bohe-api.png" alt="AI工具集导航 图标">
+                            <div class="link-text">
+                                <span class="link-title">薄荷API</span>
+                                <span class="link-description">佬友搭的</span>
+                            </div>
+                        </a>
+                        <a href="https://www.deepl.com/translator" class="link-item">
+                            <img class="link-icon-img" src="images/icon/deepl.png" alt="DeepL 图标">
+                            <div class="link-text">
+                                <span class="link-title">DeepL</span>
+                                <span class="link-description">高质量的在线翻译工具</span>
+                            </div>
+                        </a>
+                    <!-- Add more links with image icons here -->
+                </div>
+            </section>
+
+            <section class="category">
+                <h2>下载站</h2>
+                <div class="links-grid">
+                    <a href="https://dl-raw.ac/category/magazine/" class="link-item">
+                        <img class="link-icon-img" src="images/icon/dl-raw.jfif" alt="DL-Raw 图标">
+                        <div class="link-text">
+                            <span class="link-title">DL-Raw (Magazines)</span>
+                            <span class="link-description">日文杂志资源下载</span>
+                        </div>
+                    </a>
+                    <a href="https://kox.moe/" class="link-item">
+                        <img class="link-icon-img" src="images/icon/kmoe.png" alt="Kox.moe 图标">
+                        <div class="link-text">
+                            <span class="link-title">Kox.moe</span>
+                            <span class="link-description">最支持kindle的漫画站</span>
+                        </div>
+                    </a>
+                    <a href="https://nyaa.si/" class="link-item">
+                        <img class="link-icon-img" src="images/icon/Nyaa.si.jfif" alt="Nyaa.si 图标">
+                        <div class="link-text">
+                            <span class="link-title">Nyaa.si</span>
+                            <span class="link-description">动漫相关的 BitTorrent 站点</span>
+                        </div>
+                    </a>
+                    <a href="https://yts.mx/" class="link-item">
+                        <img class="link-icon-img" src="images/icon/yts.png" alt="YTS.MX 图标">
+                        <div class="link-text">
+                            <span class="link-title">YTS.MX</span>
+                            <span class="link-description">YIFY 电影种子下载站</span>
+                        </div>
+                    </a>
+                    <a href="https://subhd.cc/" class="link-item">
+                        <img class="link-icon-img" src="images/icon/subhd.png" alt="SubHD 图标">
+                        <div class="link-text">
+                            <span class="link-title">SubHD</span>
+                            <span class="link-description">高清电影字幕下载站</span>
+                        </div>
+                    </a>
+                    <!-- Add more links with image icons here -->
+                </div>
+            </section>
+
+            <section class="category">
+                <h2>素材库</h2>
+                <div class="links-grid">
+                    <a href="https://www.pickfree.cn/" class="link-item">
+                        <img class="link-icon-img" src="images/icon/pickfree.png" alt="PickFree 图标">
+                        <div class="link-text">
+                            <span class="link-title">PickFree</span>
+                            <span class="link-description">免费设计素材资源库</span>
+                        </div>
+                    </a>
+                </div>
+            </section>
+
+            <!-- Add more categories and links as needed -->
+
+        </main>
+
+        <!-- <footer class="page-footer">
+            <p>&copy; <span id="current-year"></span>保留所有权利。</p>
+        </footer> -->
+        <footer class="page-footer">
+            <!-- Paragraph for the Hitokoto quote -->
+            <p id="hitokoto-quote">正在加载一言...</p>
+            <!-- Separate paragraph for copyright -->
+            <!-- <p>&copy; <span id="current-year"></span> 保留所有权利。</p> -->
+        </footer>
+
+    </div>
+
+    <script>
+        // --- Update Time and Date ---
+        function updateTimeDate() {
+            const now = new Date();
+            const timeOptions = { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false };
+            const dateOptions = { year: 'numeric', month: 'long', day: 'numeric', weekday: 'long' };
+            const timeString = now.toLocaleTimeString('zh-CN', timeOptions);
+            const dateString = now.toLocaleDateString('zh-CN', dateOptions);
+            // Make sure you have an element with id="time-date" in your HTML
+            const timeDateElement = document.getElementById('time-date');
+            if (timeDateElement) {
+                timeDateElement.textContent = `${dateString} ${timeString}`;
+            }
+        }
+        // Make sure you have an element with id="time-date" in your HTML
+        if (document.getElementById('time-date')) {
+            updateTimeDate(); // Initial call
+            setInterval(updateTimeDate, 1000); // Update every second
+        }
+
+
+        // --- Update Current Year in Footer ---
+        // Make sure you have an element with id="current-year" in your HTML
+        const currentYearElement = document.getElementById('current-year');
+        if (currentYearElement) {
+            currentYearElement.textContent = new Date().getFullYear();
+        }
+
+
+        // --- Search Form Handling ---
+        const searchForm = document.getElementById('search-form');
+        const searchEngineSelect = document.getElementById('search-engine');
+        const searchQueryInput = document.getElementById('search-query');
+
+        // Function to perform the search navigation
+        function performSearch() {
+            const engineUrl = searchEngineSelect.value;
+            const query = searchQueryInput.value.trim();
+            if (query) {
+                const searchUrl = engineUrl + encodeURIComponent(query);
+                // window.open(searchUrl, '_blank'); // Open in new tab
+                window.location.href = searchUrl; // Open in current tab/window
+            } else {
+                searchQueryInput.focus(); // Focus input if empty
+            }
+        }
+
+        // Listener for form submission (e.g., clicking the button)
+        searchForm.addEventListener('submit', function(event) {
+            event.preventDefault(); // Prevent default form submission
+            performSearch(); // Execute the search logic
+        });
+
+        // Listener for Enter key press in the input field
+        // Using 'keydown' is generally preferred over 'keypress' for action keys like Enter
+        searchQueryInput.addEventListener('keydown', function(event) {
+            if (event.key === 'Enter') {
+                event.preventDefault(); // VERY IMPORTANT: Prevent the default Enter key action (which might submit the form natively)
+                performSearch(); // Execute the search logic directly
+            }
+        });
+
+        // --- Add name attribute to input for better semantics (Optional but recommended) ---
+        // In your HTML, change the input tag to:
+        // <input type="text" id="search-query" name="q" placeholder="输入搜索内容..." autocomplete="off">
+        // The 'name' attribute isn't strictly needed for *this* JS solution, but it's standard for form inputs.
+
+    </script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // --- 一言 API 获取 ---
+            const quoteElement = document.getElementById('hitokoto-quote');
+            const apiUrl = 'https://v1.hitokoto.cn/?c=b'; // Your API endpoint
+            const defaultQuote = '愿你走出半生，归来仍是少年。'; // Your default fallback quote
+    
+            fetch(apiUrl)
+                .then(response => {
+                    // Check if the request was successful (status code 200-299)
+                    if (!response.ok) {
+                        // If not successful, throw an error to be caught by .catch()
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    // Parse the JSON response
+                    return response.json();
+                })
+                .then(data => {
+                    // Check if the expected 'hitokoto' field exists in the response data
+                    if (data && data.hitokoto) {
+                        // If yes, update the paragraph text with the fetched quote
+                        // quoteElement.textContent = data.hitokoto;
+                        quoteElement.textContent = data.hitokoto + " —— " + data.from;
+
+                        // Optional: You could also add the source like this:
+                        // if (data.from) {
+                        //    quoteElement.textContent += ` —— ${data.from}`;
+                        // }
+                    } else {
+                        // If the data format is unexpected, log a warning and use the default
+                        console.warn('API response did not contain hitokoto field:', data);
+                        quoteElement.textContent = defaultQuote;
+                    }
+                })
+                .catch(error => {
+                    // This block catches network errors or errors thrown from the .then() blocks
+                    console.error('获取一言失败:', error);
+                    // Display the default quote in case of any error
+                    quoteElement.textContent = defaultQuote;
+                });
+    
+            // --- 更新版权年份 ---
+            const yearSpan = document.getElementById('current-year');
+            if (yearSpan) {
+                yearSpan.textContent = new Date().getFullYear();
+            } else {
+                 console.warn('Element with ID "current-year" not found.');
+            }
+        });
+    </script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // --- 图片列表配置 ---
+            // !!! 重要: 请手动在此处添加你所有的图片路径 !!!
+            // 电脑壁纸列表 (相对于 HTML 文件的路径)
+            const computerImages = [
+                "images/background/computer/__castorice_honkai_and_1_more_drawn_by_xiaohutu__d68c61adb76d254574242a67f69ae910.jpg"
+                // ... 添加更多电脑壁纸路径
+            ];
+
+            // 手机壁纸列表 (相对于 HTML 文件的路径)
+            const mobileImages = [
+                'images/background/mobile/__aventurine_and_topaz_honkai_and_1_more__483d4afa4c9b0501aab4fd4634ab4960.jpg'
+                // ... 添加更多手机壁纸路径
+            ];
+            // --- 图片列表配置结束 ---
+
+            // --- 设备检测函数 ---
+            function isMobileDevice() {
+                // 结合 User Agent 和屏幕宽度进行判断可能更准确，这里使用常见的 User Agent 检测
+                const userAgent = navigator.userAgent || navigator.vendor || window.opera;
+                // 使用正则表达式检测常见的移动设备关键字
+                if (/android|webos|iphone|ipad|ipod|blackberry|iemobile|opera mini/i.test(userAgent.toLowerCase())) {
+                    return true;
+                }
+                // 可以选择性地加入屏幕宽度判断作为补充
+                // if (window.innerWidth < 768) { // 例如小于 768px 认为是移动设备
+                //     return true;
+                // }
+                return false;
+            }
+            // --- 设备检测函数结束 ---
+
+            // --- 主要逻辑 ---
+            try {
+                const isMobile = isMobileDevice();
+                const imageList = isMobile ? mobileImages : computerImages;
+
+                // 检查列表是否为空
+                if (!imageList || imageList.length === 0) {
+                    console.warn(`No images found for ${isMobile ? 'mobile' : 'computer'} devices. Background not set.`);
+                    // 可选：设置一个默认背景或保持 CSS 中的设置
+                    // document.body.style.backgroundImage = 'linear-gradient(rgba(0, 0, 0, var(--bg-overlay-opacity)), rgba(0, 0, 0, var(--bg-overlay-opacity)))';
+                    return; // 退出函数
+                }
+
+                // 随机选择一张图片
+                const randomIndex = Math.floor(Math.random() * imageList.length);
+                const selectedImageUrl = imageList[randomIndex];
+
+                // 构建 CSS background-image 字符串，包含渐变叠加层
+                // 注意：这里假设你的 CSS 中已经定义了 --bg-overlay-opacity 变量
+                const gradientOverlay = `linear-gradient(rgba(0, 0, 0, var(--bg-overlay-opacity)), rgba(0, 0, 0, var(--bg-overlay-opacity)))`;
+                const finalBackgroundImage = `${gradientOverlay}, url('${selectedImageUrl}')`;
+
+                // 应用背景图片到 body
+                document.body.style.backgroundImage = finalBackgroundImage;
+
+                // CSS 中已经设置了 background-size, position, attachment，无需在 JS 中重复设置
+                // document.body.style.backgroundSize = 'cover';
+                // document.body.style.backgroundPosition = 'center center';
+                // document.body.style.backgroundAttachment = 'fixed';
+
+                console.log(`Set background for ${isMobile ? 'mobile' : 'computer'}: ${selectedImageUrl}`);
+
+            } catch (error) {
+                console.error("Error setting background image:", error);
+                // 出错时，可以设置一个安全的默认背景
+                document.body.style.backgroundImage = 'linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7))'; // 深色叠加层
+            }
+            // --- 主要逻辑结束 ---
+        });
+    </script>
+    
+
+</body>
+</html>
