@@ -323,6 +323,69 @@
                  grid-template-columns: 1fr; /* Force single column */
              }
         }
+
+        /* --- 时间显示样式 --- */
+        .time-display-wrapper {
+            /* 可以根据需要添加一些外边距等 */
+            margin-top: 0.5em;
+        }
+
+        .time-entry {
+            display: flex;      /* 使用 Flexbox 布局 */
+            align-items: baseline; /* 文本基线对齐 */
+            margin-bottom: 0.25em; /* 行之间的间距 */
+            /* 在宽屏时，默认就是堆叠的，如果想在宽屏时并排，需要媒体查询反向操作 */
+        }
+
+        .time-label {
+            display: inline-block; /* 让 span 可以设置宽度 */
+            min-width: 5.5em;     /* 设置一个最小宽度，确保 "北京时间:" 能放下 */
+                                /* 你可以根据实际字体和效果微调这个值 */
+            /* 或者使用 width: 5.5em; 如果你希望宽度固定 */
+            margin-right: 0.5em; /* 标签和时间值之间的间距 */
+            /* color: #555; */   /* 可以给标签设置不同颜色以区分 */
+            /* font-weight: bold; */ /* 或者加粗 */
+            text-align: right; /* 可以让冒号对齐，如果标签长度差异大 */
+                            /* 如果标签长度差异不大，保持默认 left 也行 */
+        }
+
+        .time-value {
+            /* 时间值会自动填充剩余空间或根据内容决定宽度 */
+            font-family: 'Courier New', Courier, monospace; /* 可以考虑使用等宽字体让数字对齐更规整 */
+            white-space: nowrap; /* 防止日期和时间之间自动换行 */
+
+        }
+
+        /* --- 响应式调整：窄屏幕 --- */
+        /* 在这个方案中，窄屏和宽屏的表现可能是一样的（都是堆叠）*/
+        /* 如果你希望宽屏时并排显示，可以这样做：*/
+        @media (min-width: 601px) { /* 当屏幕宽度大于 600px 时 */
+            .time-display-wrapper {
+                display: flex; /* 让两个 .time-entry 并排 */
+                gap: 1em; /* 并排时的间距 */
+            }
+            .time-entry {
+                display: inline-block; /* 取消 flex，让它像普通内联块 */
+                margin-bottom: 0; /* 清除垂直间距 */
+                white-space: nowrap; /* 防止描述和时间之间自动换行 */
+            }
+            .time-label {
+            /* 在宽屏时可能不需要固定宽度或右对齐，可以恢复默认 */
+            /* min-width: auto; */
+            /* text-align: left; */
+            /* display: inline; */ /* 或者直接变回 inline */
+            /* margin-right: 0.2em; */
+            /* 根据并排时的视觉效果调整 */
+            }
+            /* 隐藏一个标签，或者调整显示方式，避免重复 */
+            /* .time-display-wrapper .time-entry:last-child .time-label { display: none; } */
+            /* 上面这行会隐藏“北京时间:”标签，只显示时间值 */
+        }
+
+        /* 如果你始终希望它们堆叠，则不需要上面的 @media (min-width: 601px) 部分 */
+
+
+
     </style>
 </head>
 <body>
@@ -331,7 +394,17 @@
         <header class="page-header">
             <h1>整点薯条</h1>
             <!-- <iframe style="display: block; margin-right: auto;" frameborder="no" border="0" marginwidth="0" marginheight="0" width=330 height=86 src="//music.163.com/outchain/player?type=2&id=2097486090&auto=1&height=66"></iframe> -->
-            <div class="time-date" id="time-date">正在加载时间...</div>
+            <!-- <div class="time-date" id="time-date">正在加载时间...</div> -->
+        <div class="time-display-wrapper"> <!-- 新增一个外层容器 -->
+            <div class="time-entry"> <!-- UTC 时间行 -->
+                <span class="time-label">UTC:</span>
+                <span class="time-value" id="utc-time">加载中...</span>
+            </div>
+            <div class="time-entry"> <!-- 北京时间行 -->
+                <span class="time-label">北京时间:</span>
+                <span class="time-value" id="beijing-time">加载中...</span>
+            </div>
+        </div>
         </header>
 
         <section class="search-section">
