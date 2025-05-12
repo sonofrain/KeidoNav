@@ -60,17 +60,22 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // --- Async function to load image lists AND THEN set the background ---
-    async function loadImageListsAndSetupBackground() {
+    function loadImageListsAndSetupBackground() {
         try {
-            const response = await fetch('image_list.json'); // Path relative to HTML
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
+            // const response = await fetch('image_list.json'); // Path relative to HTML
+            // if (!response.ok) {
+            //     throw new Error(`HTTP error! status: ${response.status}`);
+            // }
+            // const data = await response.json();
+
+            if (typeof preloadedImageData === 'undefined' || !preloadedImageData) {
+                throw new Error('preloadedImageData 不可用。请检查 image_list.js 是否正确加载并在本脚本之前引入。');
             }
-            const data = await response.json();
+            // 直接引用存储于js文件中的JSON
 
             // Populate the arrays
-            computerImages = data.computerImages || []; // Use || [] as fallback
-            mobileImages = data.mobileImages || [];   // Use || [] as fallback
+            computerImages = preloadedImageData.computerImages || []; // Use || [] as fallback
+            mobileImages = preloadedImageData.mobileImages || [];   // Use || [] as fallback
 
             // console.log("Successfully loaded image lists:");
             // console.log("Computer Wallpapers:", computerImages);
