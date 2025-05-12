@@ -37,6 +37,18 @@
                 });
         }
 
+        const defaultQuotes = [
+                '心之所向，素履以往',
+                '时间静止于此',
+                '保持好奇',
+                '你好，世界',
+                '知足常乐，安之若素',
+                '素心向暖，爱意绵长',
+                '愿爱如灯，长明不灭',
+                '蒹葭淒淒、白露未晞',
+                '咕咕嘎嘎'
+            ];
+
         // 尝试主接口
         fetchAndProcessHitokoto(primaryHitokotoApiUrl)
             .catch(error => {
@@ -46,10 +58,10 @@
                 // 尝试备用接口
                 return fetchAndProcessHitokoto(secondaryHitokotoApiUrl)
                     .catch(fallbackError => {
-                        // 备用接口也失败
-                        console.error(`备用接口 (${secondaryHitokotoApiUrl}) 请求也失败:`, fallbackError.message);
-                        // 在页面上显示最终的错误信息
-                        hitokotoElement.textContent = '加载一言失败，请稍后重试';
+                        console.error('获取一言失败:', error);
+                        // 从列表中随机选择一个默认引用
+                        const randomIndex = Math.floor(Math.random() * defaultQuotes.length);
+                        hitokotoElement.textContent = `「${defaultQuotes[randomIndex]}」`;
                     });
             });
 
