@@ -4,6 +4,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>整点薯条</title>
+    <!-- 直接预加载 -->
+    <!-- <link rel="preload" href="scripts/randomPic.js" as="script">
+    <link rel="preload" href="scripts/updateTime.js" as="script">
+    <link rel="preload" href="scripts/hitokoto.js" as="script"> -->
+    <link rel="preload" href="image_list.json" as="fetch">
+    
+    <script src="scripts/updateTime.js" defer></script>
+    <script src="scripts/randomPic.js" defer></script>
+    <script src="scripts/hitokoto.js" defer></script>
+    <!-- defer 另一种预加载方案，但还是会在整个 DOM 构建完成后才执行脚本 -->
     <style>
         /* --- 全局和基础样式 --- */
         :root {
@@ -487,9 +497,6 @@
 
     </div>
 
-    <script src="scripts/updateTime.js"></script>
-    <script src="scripts/randomPic.js"></script>
-    <script src="scripts/hitokoto.js"></script>
     
 
 </body>
