@@ -395,16 +395,16 @@
             <h1>整点薯条</h1>
             <!-- <iframe style="display: block; margin-right: auto;" frameborder="no" border="0" marginwidth="0" marginheight="0" width=330 height=86 src="//music.163.com/outchain/player?type=2&id=2097486090&auto=1&height=66"></iframe> -->
             <!-- <div class="time-date" id="time-date">正在加载时间...</div> -->
-        <div class="time-display-wrapper"> <!-- 新增一个外层容器 -->
-            <div class="time-entry"> <!-- UTC 时间行 -->
-                <span class="time-label">UTC:</span>
-                <span class="time-value" id="utc-time">加载中...</span>
+            <div class="time-display-wrapper"> <!-- 新增一个外层容器 -->
+                <div class="time-entry"> <!-- UTC 时间行 -->
+                    <span class="time-label">UTC:</span>
+                    <span class="time-value" id="utc-time">加载中...</span>
+                </div>
+                <div class="time-entry"> <!-- 北京时间行 -->
+                    <span class="time-label">北京时间:</span>
+                    <span class="time-value" id="beijing-time">加载中...</span>
+                </div>
             </div>
-            <div class="time-entry"> <!-- 北京时间行 -->
-                <span class="time-label">北京时间:</span>
-                <span class="time-value" id="beijing-time">加载中...</span>
-            </div>
-        </div>
         </header>
 
         <section class="search-section">
@@ -568,6 +568,42 @@
             <!-- Separate paragraph for copyright -->
             <!-- <p>&copy; <span id="current-year"></span> 保留所有权利。</p> -->
         </footer>
+        <script>
+            // 等待DOM内容加载完毕
+            document.addEventListener('DOMContentLoaded', function() {
+                const searchForm = document.getElementById('search-form');
+                const searchEngineSelect = document.getElementById('search-engine');
+                const searchQueryInput = document.getElementById('search-query');
+
+                searchForm.addEventListener('submit', function(event) {
+                    // 1. 阻止表单的默认提交行为
+                    event.preventDefault();
+
+                    // 2. 获取选中的搜索引擎的基础URL
+                    const engineUrl = searchEngineSelect.value;
+
+                    // 3. 获取用户输入的搜索关键词
+                    const query = searchQueryInput.value.trim(); // trim() 去除首尾空格
+
+                    // 检查搜索内容是否为空
+                    if (query === '') {
+                        alert('请输入搜索内容！'); // 提示用户
+                        searchQueryInput.focus(); // 将焦点设置回输入框
+                        return; // 阻止后续操作
+                    }
+
+                    // 4. 将它们拼接成完整的搜索URL
+                    //    使用 encodeURIComponent 对查询词进行URL编码，以处理特殊字符（如空格、&等）
+                    const searchUrl = engineUrl + encodeURIComponent(query);
+
+                    // 5. 让浏览器跳转到这个新的URL (在当前窗口打开)
+                    window.location.href = searchUrl;
+
+                    // 如果想在新标签页中打开，可以使用:
+                    // window.open(searchUrl, '_blank');
+                });
+            });
+        </script>
 
     </div>
 
