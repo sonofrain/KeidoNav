@@ -424,7 +424,6 @@
             id="search-query"
             placeholder="输入搜索内容..."
             autocomplete="off"
-            autofocus
           />
           <button type="submit" id="search-button">搜索</button>
         </form>
@@ -663,6 +662,10 @@
         <!-- <p>&copy; <span id="current-year"></span> 保留所有权利。</p> -->
       </footer>
       <script>
+        // Only auto-focus search on desktop devices
+        if (window.innerWidth > 768) {
+          document.getElementById("search-query").focus();
+        }
         // 等待DOM内容加载完毕
         document.addEventListener("DOMContentLoaded", function () {
           const searchForm = document.getElementById("search-form");
