@@ -1,7 +1,12 @@
 const preloadedImageData = {
   computerImages:
 [
-    "images/background/computer/129209039_p0.jpg"
+    "images/background/computer/124523424_p0.jpg"
+    , "images/background/computer/129209039_p0.jpg"
+    , "images/background/computer/134446178_p0.jpg"
+    , "images/background/computer/57171771_p0.jpg"
+    , "images/background/computer/70733451_p0.jpg"
+    , "images/background/computer/76315240_p0.jpg"
     , "images/background/computer/__crewmate_and_cyan_original_and_1_more_drawn_by_redcxca__419f234110fe56ce9175f07946f0716e.jpg"
     , "images/background/computer/__lumine_mona_and_keqing_genshin_impact__0890a11a02e56b147078dd5cd2db3a9f.jpg"
     , "images/background/computer/__ro635_and_robella_girls_frontline_and_1_more__a00ab99cd4024a012e13138b8148453d.jpg"
@@ -21,7 +26,11 @@ const preloadedImageData = {
   ,
   mobileImages:
 [
-    "images/background/mobile/__aventurine_and_topaz_honkai_and_1_more__483d4afa4c9b0501aab4fd4634ab4960.jpg"
+    "images/background/mobile/113617252_p0.jpg"
+    , "images/background/mobile/129646633_p0.jpg"
+    , "images/background/mobile/130568884_p0.jpg"
+    , "images/background/mobile/130854132_p0.jpg"
+    , "images/background/mobile/__aventurine_and_topaz_honkai_and_1_more__483d4afa4c9b0501aab4fd4634ab4960.jpg"
     , "images/background/mobile/__ellen_joe_eous_and_sharkboo_zenless_zone_zero_drawn_by_makong6593__1ee858a4f8ec5a1cdbd3c913c861a202.jpg"
     , "images/background/mobile/__fujita_kotone_idolmaster_and_1_more_drawn_by_07nono06__c9089f777e9915ee507598adcaeef6b4.jpg"
     , "images/background/mobile/__herta_honkai_and_1_more__ea81981fc12d4301042a62fac1a1bfce.jpg"
