@@ -1,0 +1,466 @@
+/* --- 全局和基础样式 --- */
+:root {
+  /* --- 基础颜色 --- */
+  --primary-bg: #1c1c1e;
+  --card-bg: rgba(25, 28, 36, 0.6);
+  --card-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+
+  /* --- 文本颜色 --- */
+  --text-color: #f0f0f0;
+  --secondary-text-color: #d0d0d0;
+  --accent-color: #4a90e2;
+
+  /* --- 其他 --- */
+  --border-radius-base: 8px;
+  --border-radius-large: 12px;
+  --spacing-unit: 1rem;
+  --bg-overlay-opacity: 0.05;
+
+  /* --- 链接项颜色 --- */
+  --link-item-bg: rgba(45, 50, 60, 0.7);
+  --link-item-hover-bg: rgba(60, 65, 75, 0.85);
+  --border-color: rgba(255, 255, 255, 0.15);
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+    "Helvetica Neue", Arial, "PingFang SC", "Hiragino Sans GB",
+    "Microsoft YaHei", sans-serif;
+  color: var(--text-color);
+  line-height: 1.6;
+  padding: var(--spacing-unit);
+  background-color: var(--primary-bg);
+  background-size: cover;
+  background-position: center center;
+  background-attachment: fixed;
+  min-height: 100vh;
+  display: flex;
+}
+
+/* --- 容器 --- */
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: calc(var(--spacing-unit) * 1.5);
+  background-color: var(--card-bg);
+  border-radius: var(--border-radius-large);
+  box-shadow: var(--card-shadow);
+  backdrop-filter: blur(0px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid var(--border-color);
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+main {
+  flex-grow: 1;
+}
+
+/* --- 页头 --- */
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: calc(var(--spacing-unit) * 1.5);
+  padding-bottom: var(--spacing-unit);
+  border-bottom: 1px solid var(--border-color);
+  flex-shrink: 0;
+  gap: 1rem;
+}
+
+.header-left {
+  flex-shrink: 0;
+}
+
+.header-middle {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.header-right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.5rem;
+  flex-shrink: 0;
+}
+
+.weather-bar {
+  display: flex;
+  align-items: center;
+  font-size: 0.9rem;
+  color: var(--secondary-text-color);
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+  white-space: nowrap;
+}
+
+.page-header h1 {
+  font-size: 1.8rem;
+  color: var(--text-color);
+  margin-bottom: calc(var(--spacing-unit) * 0.5);
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+  white-space: nowrap;
+}
+
+.time-display-wrapper {
+  white-space: nowrap;
+}
+
+.page-header .time-date {
+  font-size: 0.9rem;
+  color: var(--secondary-text-color);
+  text-align: right;
+  margin-bottom: calc(var(--spacing-unit) * 0.5);
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+}
+
+/* --- 搜索栏 --- */
+.search-section {
+  margin-bottom: calc(var(--spacing-unit) * 2.5);
+  flex-shrink: 0;
+}
+
+#search-form {
+  display: flex;
+  flex-wrap: wrap;
+  gap: calc(var(--spacing-unit) * 0.75);
+  align-items: center;
+  background-color: rgba(255, 255, 255, 0.1);
+  padding: var(--spacing-unit);
+  border-radius: var(--border-radius-base);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+#search-engine {
+  padding: calc(var(--spacing-unit) * 0.5) calc(var(--spacing-unit) * 0.75);
+  border: 1px solid #ccc;
+  border-radius: var(--border-radius-base);
+  background-color: #fff;
+  font-size: 0.9rem;
+  height: 40px;
+  flex-shrink: 0;
+  color: #333;
+}
+
+#search-query {
+  flex-grow: 1;
+  padding: calc(var(--spacing-unit) * 0.5) var(--spacing-unit);
+  border: 1px solid #ccc;
+  border-radius: var(--border-radius-base);
+  font-size: 1rem;
+  height: 40px;
+  min-width: 150px;
+  background-color: #fff;
+  color: #333;
+}
+#search-query:focus {
+  border-color: var(--accent-color);
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(74, 144, 226, 0.3);
+}
+
+#search-button {
+  padding: calc(var(--spacing-unit) * 0.5) var(--spacing-unit);
+  background-color: var(--accent-color);
+  color: white;
+  border: none;
+  border-radius: var(--border-radius-base);
+  font-size: 1rem;
+  cursor: pointer;
+  height: 40px;
+  transition: background-color 0.3s ease;
+  flex-shrink: 0;
+}
+
+#search-button:hover {
+  background-color: #3a7bc8;
+}
+
+/* --- 导航分类 --- */
+.category {
+  margin-bottom: calc(var(--spacing-unit) * 2.5);
+}
+
+.category h2 {
+  font-size: 1.3rem;
+  color: var(--text-color);
+  margin-bottom: var(--spacing-unit);
+  padding-bottom: calc(var(--spacing-unit) * 0.3);
+  border-bottom: 2px solid var(--accent-color);
+  display: inline-block;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+}
+
+/* --- 网址链接网格 --- */
+.links-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: var(--spacing-unit);
+}
+/* minmax中的值为网址卡片宽度 */
+
+/* --- 单个网址链接样式 --- */
+.link-item {
+  display: flex;
+  align-items: center;
+  background-color: var(--link-item-bg);
+  padding: var(--spacing-unit);
+  border-radius: var(--border-radius-base);
+  text-decoration: none;
+  color: inherit;
+  transition: background-color 0.3s ease, box-shadow 0.3s ease,
+    transform 0.2s ease;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.link-item:hover {
+  background-color: var(--link-item-hover-bg);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+  transform: translateY(-3px);
+}
+
+/* MODIFIED: Styles for image icon */
+.link-icon-img {
+  flex-shrink: 0;
+  width: 40px; /* Icon size */
+  height: 40px; /* Icon size */
+  margin-right: var(--spacing-unit);
+  border-radius: 50%; /* Make it circular */
+  object-fit: cover; /* Scale image nicely, crop if needed */
+  display: block; /* Remove potential extra space below image */
+  background-color: rgba(255, 255, 255, 0.1); /* Fallback bg */
+}
+/* REMOVED: nth-child background colors for icons */
+
+.link-text {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden; /* Prevent text overflow */
+}
+
+.link-title {
+  font-weight: 600;
+  font-size: 1rem;
+  color: var(--text-color);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6);
+}
+
+.link-description {
+  font-size: 0.85rem;
+  color: var(--secondary-text-color);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-top: 2px;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6);
+}
+
+/* --- 页脚 --- */
+.page-footer {
+  text-align: center;
+  margin-top: calc(var(--spacing-unit) * 3);
+  padding-top: var(--spacing-unit);
+  border-top: 1px solid var(--border-color);
+  font-size: 0.85rem;
+  color: var(--secondary-text-color);
+  flex-shrink: 0;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+}
+
+.page-footer p {
+  text-shadow: inherit;
+}
+
+/* --- 响应式调整 --- */
+@media (max-width: 1000px) {
+  .page-header {
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.8rem;
+  }
+
+  .header-left {
+    order: 1;
+  }
+
+  .header-middle {
+    order: 3;
+    width: 100%;
+    justify-content: center;
+    padding: 0;
+  }
+
+  .header-right {
+    order: 2;
+  }
+}
+
+@media (max-width: 768px) {
+  body {
+    padding: calc(var(--spacing-unit) * 0.5);
+  }
+  .container {
+    padding: var(--spacing-unit);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+  }
+  .page-header {
+    flex-direction: column;
+    align-items: center;
+    gap: 0.8rem;
+  }
+
+  .header-left {
+    order: 1;
+    width: auto;
+    text-align: center;
+  }
+
+  .header-middle {
+    order: 2;
+    width: auto;
+    padding: 0;
+    justify-content: center;
+  }
+
+  .header-right {
+    order: 3;
+    width: auto;
+    align-items: center;
+  }
+
+  .weather-bar {
+    justify-content: center;
+  }
+
+  .page-header h1 {
+    font-size: 1.8rem;
+    margin-bottom: 0;
+  }
+}
+
+@media (max-width: 480px) {
+  .page-header {
+    gap: 0.6rem;
+  }
+
+  .page-header h1 {
+    font-size: 1.6rem;
+  }
+
+  .weather-bar {
+    font-size: 0.85rem;
+  }
+
+  .time-display-wrapper {
+    font-size: 0.85rem;
+  }
+}
+
+@media (max-width: 768px) {
+  #search-form {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  #search-engine,
+  #search-query,
+  #search-button {
+    width: 100%;
+  }
+  .links-grid {
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  }
+  .link-item {
+    padding: calc(var(--spacing-unit) * 0.8);
+  }
+  /* MODIFIED: Adjust image icon size for smaller screens */
+  .link-icon-img {
+    width: 35px;
+    height: 35px;
+    margin-right: calc(var(--spacing-unit) * 0.8);
+  }
+  .link-title {
+    font-size: 0.95rem;
+  }
+  .link-description {
+    font-size: 0.8rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .links-grid {
+    grid-template-columns: 1fr; /* Force single column */
+  }
+}
+/* --- 时间显示样式 --- */
+.time-display-wrapper {
+  /* 可以根据需要添加一些外边距等 */
+  margin-top: 0.5em;
+}
+
+.time-entry {
+  display: flex; /* 使用 Flexbox 布局 */
+  align-items: baseline; /* 文本基线对齐 */
+  margin-bottom: 0.25em; /* 行之间的间距 */
+  /* 在宽屏时，默认就是堆叠的，如果想在宽屏时并排，需要媒体查询反向操作 */
+}
+
+.time-label {
+  display: inline-block; /* 让 span 可以设置宽度 */
+  min-width: 5.5em; /* 设置一个最小宽度，确保 "北京时间:" 能放下 */
+  /* 你可以根据实际字体和效果微调这个值 */
+  /* 或者使用 width: 5.5em; 如果你希望宽度固定 */
+  margin-right: 0.5em; /* 标签和时间值之间的间距 */
+  /* color: #555; */ /* 可以给标签设置不同颜色以区分 */
+  /* font-weight: bold; */ /* 或者加粗 */
+  text-align: right; /* 可以让冒号对齐，如果标签长度差异大 */
+  /* 如果标签长度差异不大，保持默认 left 也行 */
+}
+
+.time-value {
+  /* 时间值会自动填充剩余空间或根据内容决定宽度 */
+  font-family: "Courier New", Courier, monospace; /* 可以考虑使用等宽字体让数字对齐更规整 */
+  white-space: nowrap; /* 防止日期和时间之间自动换行 */
+}
+
+/* --- 响应式调整：窄屏幕 --- */
+/* 在这个方案中，窄屏和宽屏的表现可能是一样的（都是堆叠）*/
+/* 如果你希望宽屏时并排显示，可以这样做：*/
+@media (min-width: 601px) {
+  /* 当屏幕宽度大于 600px 时 */
+  .time-display-wrapper {
+    display: flex; /* 让两个 .time-entry 并排 */
+    gap: 1em; /* 并排时的间距 */
+  }
+  .time-entry {
+    display: inline-block; /* 取消 flex，让它像普通内联块 */
+    margin-bottom: 0; /* 清除垂直间距 */
+    white-space: nowrap; /* 防止描述和时间之间自动换行 */
+  }
+  .time-label {
+    /* 在宽屏时可能不需要固定宽度或右对齐，可以恢复默认 */
+    /* min-width: auto; */
+    /* text-align: left; */
+    /* display: inline; */ /* 或者直接变回 inline */
+    /* margin-right: 0.2em; */
+    /* 根据并排时的视觉效果调整 */
+  }
+  /* 隐藏一个标签，或者调整显示方式，避免重复 */
+  /* .time-display-wrapper .time-entry:last-child .time-label { display: none; } */
+  /* 上面这行会隐藏"北京时间:"标签，只显示时间值 */
+}
+
+/* 如果你始终希望它们堆叠，则不需要上面的 @media (min-width: 601px) 部分 */
