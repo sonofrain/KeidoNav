@@ -14,6 +14,7 @@
     <script src="scripts/updateTime.js" defer></script>
     <script src="scripts/randomPic.js" defer></script>
     <script src="scripts/hitokoto.js" defer></script>
+    <script src="scripts/weather.js" defer></script>
     <!-- defer 另一种预加载方案，但还是会在整个 DOM 构建完成后才执行脚本 -->
     <style>
       /* --- 全局和基础样式 --- */
@@ -88,11 +89,38 @@
         display: flex;
         justify-content: space-between;
         align-items: center;
-        flex-wrap: wrap;
         margin-bottom: calc(var(--spacing-unit) * 1.5);
         padding-bottom: var(--spacing-unit);
         border-bottom: 1px solid var(--border-color);
         flex-shrink: 0;
+        gap: 1rem;
+      }
+
+      .header-left {
+        flex-shrink: 0;
+      }
+
+      .header-middle {
+        display: flex;
+        align-items: center;
+        flex-shrink: 0;
+      }
+
+      .header-right {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-end;
+        gap: 0.5rem;
+        flex-shrink: 0;
+      }
+
+      .weather-bar {
+        display: flex;
+        align-items: center;
+        font-size: 0.9rem;
+        color: var(--secondary-text-color);
+        text-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+        white-space: nowrap;
       }
 
       .page-header h1 {
@@ -100,6 +128,11 @@
         color: var(--text-color);
         margin-bottom: calc(var(--spacing-unit) * 0.5);
         text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+        white-space: nowrap;
+      }
+
+      .time-display-wrapper {
+        white-space: nowrap;
       }
 
       .page-header .time-date {
@@ -274,6 +307,29 @@
       }
 
       /* --- 响应式调整 --- */
+      @media (max-width: 1000px) {
+        .page-header {
+          flex-wrap: wrap;
+          justify-content: center;
+          gap: 0.8rem;
+        }
+
+        .header-left {
+          order: 1;
+        }
+
+        .header-middle {
+          order: 3;
+          width: 100%;
+          justify-content: center;
+          padding: 0;
+        }
+
+        .header-right {
+          order: 2;
+        }
+      }
+
       @media (max-width: 768px) {
         body {
           padding: calc(var(--spacing-unit) * 0.5);
@@ -285,15 +341,58 @@
         }
         .page-header {
           flex-direction: column;
-          align-items: flex-start;
+          align-items: center;
+          gap: 0.8rem;
         }
-        .page-header .time-date {
-          text-align: left;
-          margin-top: calc(var(--spacing-unit) * 0.5);
+
+        .header-left {
+          order: 1;
+          width: auto;
+          text-align: center;
         }
+
+        .header-middle {
+          order: 2;
+          width: auto;
+          padding: 0;
+          justify-content: center;
+        }
+
+        .header-right {
+          order: 3;
+          width: auto;
+          align-items: center;
+        }
+
+        .weather-bar {
+          justify-content: center;
+        }
+
+        .page-header h1 {
+          font-size: 1.8rem;
+          margin-bottom: 0;
+        }
+      }
+
+      @media (max-width: 480px) {
+        .page-header {
+          gap: 0.6rem;
+        }
+
         .page-header h1 {
           font-size: 1.6rem;
         }
+
+        .weather-bar {
+          font-size: 0.85rem;
+        }
+
+        .time-display-wrapper {
+          font-size: 0.85rem;
+        }
+      }
+
+      @media (max-width: 768px) {
         #search-form {
           flex-direction: column;
           align-items: stretch;
@@ -328,7 +427,6 @@
           grid-template-columns: 1fr; /* Force single column */
         }
       }
-
       /* --- 时间显示样式 --- */
       .time-display-wrapper {
         /* 可以根据需要添加一些外边距等 */
@@ -393,20 +491,27 @@
   <body>
     <div class="container">
       <header class="page-header">
-        <h1>整点薯条</h1>
-        <!-- <iframe style="display: block; margin-right: auto;" frameborder="no" border="0" marginwidth="0" marginheight="0" width=330 height=86 src="//music.163.com/outchain/player?type=2&id=2097486090&auto=1&height=66"></iframe> -->
-        <!-- <div class="time-date" id="time-date">正在加载时间...</div> -->
-        <div class="time-display-wrapper">
-          <!-- 新增一个外层容器 -->
-          <div class="time-entry">
-            <!-- UTC 时间行 -->
-            <span class="time-label">UTC:</span>
-            <span class="time-value" id="utc-time">加载中...</span>
+        <div class="header-left">
+          <h1>整点薯条</h1>
+        </div>
+        <div class="header-middle" id="weather-container" style="display: none">
+          <div class="weather-bar">
+            <span id="weather-info"></span>
           </div>
-          <div class="time-entry">
-            <!-- 北京时间行 -->
-            <span class="time-label">北京时间:</span>
-            <span class="time-value" id="beijing-time">加载中...</span>
+        </div>
+        <div class="header-right">
+          <div class="time-display-wrapper">
+            <!-- 新增一个外层容器 -->
+            <div class="time-entry">
+              <!-- UTC 时间行 -->
+              <span class="time-label">UTC:</span>
+              <span class="time-value" id="utc-time">加载中...</span>
+            </div>
+            <div class="time-entry">
+              <!-- 北京时间行 -->
+              <span class="time-label">北京时间:</span>
+              <span class="time-value" id="beijing-time">加载中...</span>
+            </div>
           </div>
         </div>
       </header>
