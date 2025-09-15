@@ -242,30 +242,149 @@ function translateCityName(englishName) {
   return cityTranslations[englishName] || englishName;
 }
 
+// Retry function with exponential backoff
+async function retryWithBackoff(fn, maxRetries = 3, delay = 1000) {
+  for (let i = 0; i < maxRetries; i++) {
+    try {
+      return await fn();
+    } catch (error) {
+      if (i === maxRetries - 1) throw error;
+      await new Promise(resolve => setTimeout(resolve, delay * Math.pow(2, i)));
+    }
+  }
+}
+
+// Fetch with timeout
+async function fetchWithTimeout(url, options = {}, timeout = 10000) {
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), timeout);
+  
+  try {
+    const response = await fetch(url, {
+      ...options,
+      signal: controller.signal
+    });
+    clearTimeout(timeoutId);
+    return response;
+  } catch (error) {
+    clearTimeout(timeoutId);
+    throw error;
+  }
+}
+
+// Get location with multiple fallback APIs
+async function getLocationWithFallback() {
+  const locationApis = [
+    async () => {
+      const response = await fetchWithTimeout("https://ipapi.co/json/");
+      const data = await response.json();
+      return {
+        latitude: data.latitude,
+        longitude: data.longitude,
+        city: data.city || data.region || "未知位置"
+      };
+    },
+    async () => {
+      const response = await fetchWithTimeout("https://ip-api.com/json/");
+      const data = await response.json();
+      return {
+        latitude: data.lat,
+        longitude: data.lon,
+        city: data.city || data.regionName || "未知位置"
+      };
+    },
+    async () => {
+      const response = await fetchWithTimeout("https://geoip-db.com/json/");
+      const data = await response.json();
+      return {
+        latitude: data.latitude,
+        longitude: data.longitude,
+        city: data.city || data.state || "未知位置"
+      };
+    }
+  ];
+
+  for (const api of locationApis) {
+    try {
+      return await retryWithBackoff(api);
+    } catch (error) {
+      console.warn("位置API失败，尝试下一个:", error.message);
+      continue;
+    }
+  }
+  
+  // Default to Beijing if all APIs fail
+  return {
+    latitude: 39.9042,
+    longitude: 116.4074,
+    city: "北京"
+  };
+}
+
+// Get weather data with multiple fallback APIs
+async function getWeatherWithFallback(latitude, longitude) {
+  const weatherApis = [
+    async () => {
+      const response = await fetchWithTimeout(
+        `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current=temperature_2m,relative_humidity_2m,apparent_temperature,is_day,precipitation,rain,showers,snowfall,weather_code,wind_speed_10m,wind_direction_10m&hourly=temperature_2m,relative_humidity_2m,precipitation_probability,weather_code&daily=weather_code,temperature_2m_max,temperature_2m_min&timezone=auto`
+      );
+      if (!response.ok) throw new Error("Open-Meteo API 失败");
+      return await response.json();
+    },
+    async () => {
+      const response = await fetchWithTimeout(
+        `https://api.weatherapi.com/v1/current.json?key=demo&q=${latitude},${longitude}&aqi=no`
+      );
+      if (!response.ok) throw new Error("WeatherAPI 失败");
+      const data = await response.json();
+      // Convert WeatherAPI format to match Open-Meteo format
+      return {
+        current: {
+          temperature_2m: data.current.temp_c,
+          relative_humidity_2m: data.current.humidity,
+          apparent_temperature: data.current.feelslike_c,
+          is_day: data.current.is_day ? 1 : 0,
+          precipitation: data.current.precip_mm,
+          weather_code: data.current.condition.code,
+          wind_speed_10m: data.current.wind_kph,
+          wind_direction_10m: data.current.wind_degree
+        }
+      };
+    }
+  ];
+
+  for (const api of weatherApis) {
+    try {
+      return await retryWithBackoff(api);
+    } catch (error) {
+      console.warn("天气API失败，尝试下一个:", error.message);
+      continue;
+    }
+  }
+  
+  throw new Error("所有天气API都失败了");
+}
+
 // Get user's location and fetch weather data
 async function getWeatherInfo() {
   try {
-    // First get user's location using IP geolocation
-    const locationResponse = await fetch("https://ipapi.co/json/");
-    const locationData = await locationResponse.json();
+    // Show loading state
+    const weatherElement = document.getElementById("weather-info");
+    if (weatherElement) {
+      weatherElement.textContent = "正在加载天气信息...";
+    }
 
+    // Get location with fallback
+    const locationData = await getLocationWithFallback();
     const latitude = locationData.latitude;
     const longitude = locationData.longitude;
-    let city = locationData.city || locationData.region || "未知位置";
+    let city = locationData.city;
 
     // Translate city name to Chinese
     city = translateCityName(city);
 
-    // Fetch weather data from Open-Meteo API
-    const weatherResponse = await fetch(
-      `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current=temperature_2m,relative_humidity_2m,apparent_temperature,is_day,precipitation,rain,showers,snowfall,weather_code,wind_speed_10m,wind_direction_10m&hourly=temperature_2m,relative_humidity_2m,precipitation_probability,weather_code&daily=weather_code,temperature_2m_max,temperature_2m_min&timezone=auto`
-    );
-
-    if (!weatherResponse.ok) {
-      throw new Error("天气数据获取失败");
-    }
-
-    const weatherData = await weatherResponse.json();
+    // Get weather data with fallback
+    const weatherData = await getWeatherWithFallback(latitude, longitude);
 
     // Extract current weather information
     const currentWeather = weatherData.current;
@@ -282,7 +401,6 @@ async function getWeatherInfo() {
     );
 
     // Update weather bar with comprehensive information
-    const weatherElement = document.getElementById("weather-info");
     if (weatherElement) {
       weatherElement.innerHTML = `
         <span>${city}</span>
@@ -296,12 +414,12 @@ async function getWeatherInfo() {
         <span> | </span>
         <span>风速 ${windSpeed} km/h</span>
       `;
+    }
 
-      // Show weather container after loading
-      const weatherContainer = document.getElementById("weather-container");
-      if (weatherContainer) {
-        weatherContainer.style.display = "flex";
-      }
+    // Show weather container after loading
+    const weatherContainer = document.getElementById("weather-container");
+    if (weatherContainer) {
+      weatherContainer.style.display = "flex";
     }
 
     // Store weather data for potential future use
@@ -315,10 +433,10 @@ async function getWeatherInfo() {
   } catch (error) {
     console.error("获取天气信息失败:", error);
 
-    // If API call fails, display default information
+    // If all API calls fail, display default information
     const weatherElement = document.getElementById("weather-info");
     if (weatherElement) {
-      weatherElement.textContent = "天气信息不可用";
+      weatherElement.textContent = "天气信息不可用 (网络连接问题)";
     }
 
     // Show weather container even if there's an error
