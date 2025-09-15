@@ -8,9 +8,10 @@ document.addEventListener('DOMContentLoaded', function() {
     let timeOffset = 0; // 客户端时间与真实 UTC 时间的毫秒差
     let apiFetchAttempted = false; // 标记是否已尝试获取 API 时间
     let intervalId = null; // 用于存储 setInterval 的 ID，方便后续清除（如果需要）
+    let isTimeCalibrated = false; // 标记时间是否已校准
 
-    // Retry function with exponential backoff
-    async function retryWithBackoff(fn, maxRetries = 3, delay = 1000) {
+    // Retry function with exponential backoff - 减少重试次数和延迟
+    async function retryWithBackoff(fn, maxRetries = 2, delay = 500) {
       for (let i = 0; i < maxRetries; i++) {
         try {
           return await fn();
@@ -21,8 +22,8 @@ document.addEventListener('DOMContentLoaded', function() {
       }
     }
 
-    // Fetch with timeout
-    async function fetchWithTimeout(url, options = {}, timeout = 8000) {
+    // Fetch with timeout - 减少超时时间以加快响应
+    async function fetchWithTimeout(url, options = {}, timeout = 3000) {
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), timeout);
       
@@ -39,8 +40,8 @@ document.addEventListener('DOMContentLoaded', function() {
       }
     }
 
-    // JSONP request function for CORS bypass
-    function fetchWithJSONP(url, timeout = 8000) {
+    // JSONP request function for CORS bypass - 减少超时时间
+    function fetchWithJSONP(url, timeout = 3000) {
       return new Promise((resolve, reject) => {
         const callbackName = 'jsonp_callback_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
         const script = document.createElement('script');
@@ -70,10 +71,10 @@ document.addEventListener('DOMContentLoaded', function() {
       });
     }
 
-    // Get accurate time with multiple fallback APIs (including CORS-friendly options)
+    // Get accurate time with simplified fast APIs
     async function getAccurateTimeWithFallback() {
       const timeApis = [
-        // CORS-friendly APIs
+        // 只保留最快最可靠的API
         async () => {
           const response = await fetchWithTimeout('https://worldtimeapi.org/api/timezone/Etc/UTC');
           if (!response.ok) throw new Error('WorldTimeAPI 失败');
@@ -85,54 +86,6 @@ document.addEventListener('DOMContentLoaded', function() {
           if (!response.ok) throw new Error('TimeAPI.io 失败');
           const data = await response.json();
           return new Date(data.dateTime).getTime();
-        },
-        // Alternative CORS-friendly APIs
-        async () => {
-          const response = await fetchWithTimeout('https://api.timezonedb.com/v2.1/get-time-zone?key=YOUR_API_KEY&format=json&by=zone&zone=UTC');
-          if (!response.ok) throw new Error('TimeZoneDB 失败');
-          const data = await response.json();
-          return data.timestamp * 1000;
-        },
-        async () => {
-          const response = await fetchWithTimeout('https://www.timeapi.io/api/Conversion/timezone/UTC?toZone=UTC');
-          if (!response.ok) throw new Error('TimeAPI Conversion 失败');
-          const data = await response.json();
-          return new Date(data.dateTime).getTime();
-        },
-        // JSONP fallback for APIs that don't support CORS
-        async () => {
-          const data = await fetchWithJSONP('http://worldclockapi.com/api/json/utc/now');
-          return new Date(data.currentDateTime).getTime();
-        },
-        async () => {
-          const data = await fetchWithJSONP('https://api.geonames.org/timezoneJSON?lat=0&lng=0&username=demo');
-          return data.time * 1000;
-        },
-        // Fallback to NTP protocol simulation using WebRTC
-        async () => {
-          return new Promise((resolve, reject) => {
-            const pc = new RTCPeerConnection({
-              iceServers: [{ urls: 'stun:stun.l.google.com:19302' }]
-            });
-            
-            const start = Date.now();
-            pc.createDataChannel('');
-            pc.createOffer().then(offer => pc.setLocalDescription(offer));
-            
-            pc.onicecandidate = (ice) => {
-              if (ice.candidate) {
-                const end = Date.now();
-                pc.close();
-                // Use the average of client time and estimated server time
-                resolve((start + end) / 2);
-              }
-            };
-            
-            setTimeout(() => {
-              pc.close();
-              reject(new Error('WebRTC timing failed'));
-            }, 5000);
-          });
         }
       ];
 
@@ -147,26 +100,9 @@ document.addEventListener('DOMContentLoaded', function() {
         }
       }
       
-      // Final fallback: use multiple NTP-like requests to estimate server time
-      try {
-        console.log('尝试使用NTP-like方法估算时间...');
-        const requests = [];
-        for (let i = 0; i < 3; i++) {
-          requests.push(
-            fetch('https://www.google.com', { method: 'HEAD', mode: 'no-cors' })
-              .then(() => Date.now())
-              .catch(() => Date.now())
-          );
-        }
-        
-        const results = await Promise.all(requests);
-        const averageTime = results.reduce((a, b) => a + b, 0) / results.length;
-        console.log('NTP-like时间估算完成');
-        return averageTime;
-      } catch (error) {
-        console.warn('NTP-like方法也失败了，使用客户端时间');
-        return Date.now();
-      }
+      // 如果API都失败了，直接使用客户端时间
+      console.warn('所有时间API都失败，使用客户端时间');
+      return Date.now();
     }
 
     // 更新显示时间的函数
@@ -226,9 +162,6 @@ document.addEventListener('DOMContentLoaded', function() {
     async function fetchAccurateTime() {
         if (!utcTimeElement || !beijingTimeElement) return; // 如果没有显示元素，则不尝试获取
 
-        utcTimeElement.textContent = "加载中...";
-        beijingTimeElement.textContent = "加载中...";
-
         try {
             const accurateUtcTimestamp = await getAccurateTimeWithFallback();
             const clientTimestampAtFetch = Date.now(); // 获取 API 响应时的客户端时间戳
@@ -238,6 +171,7 @@ document.addEventListener('DOMContentLoaded', function() {
             timeOffset = accurateUtcTimestamp - clientTimestampAtFetch;
             console.log(`成功获取时间，计算出的客户端时间偏差: ${timeOffset}ms`);
             apiFetchAttempted = true; // 标记已尝试且成功
+            isTimeCalibrated = true; // 标记时间已校准
         } catch (error) {
             console.warn(`无法获取准确时间: ${error.message}. 将回退使用客户端本地时间。`);
             timeOffset = 0; // 获取失败，不进行校准
@@ -245,13 +179,18 @@ document.addEventListener('DOMContentLoaded', function() {
         } finally {
             // 无论成功或失败，都立即更新一次时间显示
             updateDisplayTime();
-            // 然后设置定时器，每秒更新一次
-            if (intervalId) clearInterval(intervalId); // 清除旧的定时器（如果存在）
-            intervalId = setInterval(updateDisplayTime, 1000); // 每 1000ms (1秒) 更新一次时间
+            // 定时器已经在开始时设置，这里不需要重复设置
         }
     }
 
-    // --- 页面加载完成后，开始获取时间 ---
-    fetchAccurateTime();
+    // 立即显示本地时间，不等待API校准
+    updateDisplayTime();
+    // 立即开始每秒更新时间
+    intervalId = setInterval(updateDisplayTime, 1000);
+    
+    // 在后台异步校准时间，不阻塞界面显示
+    setTimeout(() => {
+        fetchAccurateTime();
+    }, 100); // 延迟100ms开始校准，确保界面先显示
 
 });
