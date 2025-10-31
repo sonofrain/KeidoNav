@@ -69,16 +69,16 @@
       <main>
         <!-- 引入"随便看看"类别 -->
         <div id="random-links-container"></div>
-
+      
         <!-- 引入"AI"类别 -->
         <div id="ai-links-container"></div>
-
+      
         <!-- 引入"下载站"类别 -->
         <div id="download-links-container"></div>
-
+      
         <!-- 引入"素材库"类别 -->
         <div id="resources-links-container"></div>
-
+      
         <!-- 引入"边缘服务"类别 -->
         <div id="edge-services-links-container"></div>
       </main>
@@ -104,27 +104,27 @@
               document.getElementById("random-links-container").innerHTML =
                 html;
             });
-
+        
           fetch("includes/ai-links.html")
             .then((response) => response.text())
             .then((html) => {
               document.getElementById("ai-links-container").innerHTML = html;
             });
-
+        
           fetch("includes/download-links.html")
             .then((response) => response.text())
             .then((html) => {
               document.getElementById("download-links-container").innerHTML =
                 html;
             });
-
+        
           fetch("includes/resources-links.html")
             .then((response) => response.text())
             .then((html) => {
               document.getElementById("resources-links-container").innerHTML =
                 html;
             });
-
+        
           fetch("includes/edge-services-links.html")
             .then((response) => response.text())
             .then((html) => {

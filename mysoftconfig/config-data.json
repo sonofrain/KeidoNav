@@ -1,0 +1,124 @@
+{
+  "title": "软件配置清单",
+  "subtitle": "记录常用软件及相关设置，方便快速配置新环境",
+  "categories": [
+    {
+      "id": "dev-tools",
+      "name": "开发工具",
+      "icon": "💻",
+      "items": [
+        {
+          "id": "vscode",
+          "name": "VSCode",
+          "description": "代码编辑器配置",
+          "settings": [
+            "主题: One Dark Pro",
+            "字体: Fira Code",
+            "插件: Prettier, ESLint, GitLens"
+          ]
+        },
+        {
+          "id": "git",
+          "name": "Git",
+          "description": "版本控制配置",
+          "settings": [
+            "用户名和邮箱设置",
+            "全局 .gitignore 配置",
+            "常用别名: co, br, st"
+          ]
+        },
+        {
+          "id": "nodejs",
+          "name": "Node.js",
+          "description": "JavaScript 运行环境",
+          "settings": [
+            "使用 nvm 管理版本",
+            "全局包: npm, yarn, pnpm",
+            "npm 镜像源设置"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "productivity",
+      "name": "生产力工具",
+      "icon": "⚡",
+      "items": [
+        {
+          "id": "notion",
+          "name": "Notion",
+          "description": "笔记与知识管理",
+          "settings": [
+            "工作空间同步",
+            "模板库配置",
+            "快捷键自定义"
+          ]
+        },
+        {
+          "id": "browser",
+          "name": "浏览器",
+          "description": "Chrome/Edge 配置",
+          "settings": [
+            "扩展: uBlock Origin, Bitwarden",
+            "书签同步",
+            "搜索引擎设置"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "system",
+      "name": "系统设置",
+      "icon": "⚙️",
+      "items": [
+        {
+          "id": "terminal",
+          "name": "终端",
+          "description": "命令行工具配置",
+          "settings": [
+            "Windows Terminal 主题",
+            "PowerShell 配置文件",
+            "Oh My Posh 安装"
+          ]
+        },
+        {
+          "id": "fonts",
+          "name": "字体",
+          "description": "常用字体安装",
+          "settings": [
+            "编程字体: Fira Code, JetBrains Mono",
+            "中文字体: 思源黑体, 霞鹜文楷",
+            "字体渲染优化"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "media",
+      "name": "多媒体工具",
+      "icon": "🎬",
+      "items": [
+        {
+          "id": "potplayer",
+          "name": "PotPlayer",
+          "description": "视频播放器",
+          "settings": [
+            "madVR 渲染器配置",
+            "字幕样式设置",
+            "快捷键绑定"
+          ]
+        },
+        {
+          "id": "music",
+          "name": "音乐播放器",
+          "description": "本地音乐管理",
+          "settings": [
+            "媒体库路径设置",
+            "音效增强配置",
+            "歌词显示设置"
+          ]
+        }
+      ]
+    }
+  ]
+}
