@@ -184,11 +184,6 @@ main {
   background-color: #3a7bc8;
 }
 
-/* Gemini icon specific styling */
-.gemini-icon {
-  filter: invert(45%) sepia(76%) saturate(398%) hue-rotate(281deg) brightness(98%) contrast(85%);
-}
-
 /* Footer Styles */
 .page-footer {
   margin-top: calc(var(--spacing-unit) * 3);
@@ -471,4 +466,33 @@ main {
   /* 上面这行会隐藏"北京时间:"标签，只显示时间值 */
 }
 
-/* 如果你始终希望它们堆叠，则不需要上面的 @media (min-width: 601px) 部分 */
+/* 如果你始终希望它们堆叠，则不需要上面的 @media (min-width: 601px) 部分 -->
+
+/* Icon background colors for transparent icons */
+.bohe-api-icon {
+  background-color: #263238; /* Dark gray for bohe-api */
+}
+
+.perplexity-icon {
+  background-color: #1a237e; /* Dark blue for Perplexity */
+}
+
+.deepseek-icon {
+  background-color: #4a148c; /* Dark purple for DeepSeek */
+}
+
+.gemini-icon {
+  background-color: #000000; /* Black background to highlight Gemini gradient */
+}
+
+.perplexity-icon {
+  background-color: #1a237e; /* Dark blue for Perplexity */
+}
+
+.deepseek-icon {
+  background-color: #4a148c; /* Dark purple for DeepSeek */
+}
+
+.gemini-icon {
+  background-color: #000000; /* Black background to highlight Gemini gradient */
+}
