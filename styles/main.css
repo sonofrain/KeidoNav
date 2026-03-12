@@ -184,9 +184,17 @@ main {
   background-color: #3a7bc8;
 }
 
-/* --- 导航分类 --- */
-.category {
-  margin-bottom: calc(var(--spacing-unit) * 2.5);
+/* Gemini icon specific styling */
+.gemini-icon {
+  filter: invert(45%) sepia(76%) saturate(398%) hue-rotate(281deg) brightness(98%) contrast(85%);
+}
+
+/* Footer Styles */
+.page-footer {
+  margin-top: calc(var(--spacing-unit) * 3);
+  text-align: center;
+  font-size: 0.9rem;
+  color: var(--secondary-text-color);
 }
 
 .category h2 {
