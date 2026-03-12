@@ -95,37 +95,47 @@
 
       <!-- 加载外部链接内容的脚本 -->
       <script>
-        // 使用 fetch API 加载外部 HTML 文件
+        // 使用 fetch API 加载外部 HTML 文件，添加缓存控制
         document.addEventListener("DOMContentLoaded", function () {
+          // 为fetch请求添加缓存控制选项
+          const fetchOptions = {
+            cache: 'no-cache', // 不使用缓存
+            headers: {
+              'Cache-Control': 'no-cache, no-store, must-revalidate',
+              'Pragma': 'no-cache',
+              'Expires': '0'
+            }
+          };
+          
           // 加载各个链接类别
-          fetch("includes/random-links.html")
+          fetch("includes/random-links.html", fetchOptions)
             .then((response) => response.text())
             .then((html) => {
               document.getElementById("random-links-container").innerHTML =
                 html;
             });
         
-          fetch("includes/ai-links.html")
+          fetch("includes/ai-links.html", fetchOptions)
             .then((response) => response.text())
             .then((html) => {
               document.getElementById("ai-links-container").innerHTML = html;
             });
         
-          fetch("includes/download-links.html")
+          fetch("includes/download-links.html", fetchOptions)
             .then((response) => response.text())
             .then((html) => {
               document.getElementById("download-links-container").innerHTML =
                 html;
             });
         
-          fetch("includes/resources-links.html")
+          fetch("includes/resources-links.html", fetchOptions)
             .then((response) => response.text())
             .then((html) => {
               document.getElementById("resources-links-container").innerHTML =
                 html;
             });
         
-          fetch("includes/edge-services-links.html")
+          fetch("includes/edge-services-links.html", fetchOptions)
             .then((response) => response.text())
             .then((html) => {
               document.getElementById(
