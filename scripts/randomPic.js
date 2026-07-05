@@ -46,8 +46,11 @@ document.addEventListener('DOMContentLoaded', () => {
             const gradientOverlay = `linear-gradient(rgba(0, 0, 0, var(--bg-overlay-opacity, 0.5)), rgba(0, 0, 0, var(--bg-overlay-opacity, 0.5)))`; // Added fallback opacity
             const finalBackgroundImage = `${gradientOverlay}, url('${selectedImageUrl}')`;
 
-            // Apply background
-            document.body.style.backgroundImage = finalBackgroundImage;
+            // Apply background to the dedicated background layer
+            const bgLayer = document.querySelector('.bg-layer');
+            if (bgLayer) {
+              bgLayer.style.backgroundImage = finalBackgroundImage;
+            }
 
             // CSS handles size, position, attachment
             // console.log(`Set background for ${isMobile ? 'mobile' : 'computer'}: ${selectedImageUrl}`);
