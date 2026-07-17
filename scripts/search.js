@@ -25,11 +25,8 @@ document.addEventListener("DOMContentLoaded", function () {
     //    使用 encodeURIComponent 对查询词进行URL编码，以处理特殊字符（如空格、&等）
     const searchUrl = engineUrl + encodeURIComponent(query);
 
-    // 5. 让浏览器跳转到这个新的URL (在当前窗口打开)
-    window.location.href = searchUrl;
-
-    // 如果想在新标签页中打开，可以使用:
-    // window.open(searchUrl, '_blank');
+    // 5. 在新标签页中打开搜索结果
+    window.open(searchUrl, '_blank');
   });
 
   // Only auto-focus search on desktop devices
