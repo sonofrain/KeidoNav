@@ -333,8 +333,9 @@
       <h1><a href="../index.html">整点薯条</a> / 📒 便签本</h1>
       <div class="top-bar-actions">
         <button class="btn btn-primary" id="btnNewNote" title="新建便签">＋ 新建便签</button>
-        <button class="btn btn-secondary" id="btnExport" title="导出为 JSON 文件">📥 导出</button>
-        <button class="btn btn-secondary" id="btnImport" title="从 JSON 文件导入">📤 导入</button>
+        <button class="btn btn-secondary" id="btnExport" title="复制到剪贴板">📋 复制到剪贴板</button>
+        <button class="btn btn-secondary" id="btnImport" title="粘贴导入">📥 粘贴导入</button>
+        <button class="btn btn-secondary" id="btnImportFile" title="从 JSON 文件导入">📂 文件导入</button>
         <input type="file" id="importFileInput" class="hidden-input" accept=".json" />
       </div>
     </div>
@@ -696,56 +697,72 @@
 
       // ==================== 导入/导出 ====================
       function exportNotes() {
+        saveAllEdits();
         const data = JSON.stringify(notes, null, 2);
-        const blob = new Blob([data], { type: 'application/json' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `notepad-backup-${new Date().toISOString().slice(0,10)}.json`;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        URL.revokeObjectURL(url);
+        navigator.clipboard.writeText(data).then(() => {
+          showToast('✅ 已复制到剪贴板，换设备时点「粘贴导入」即可同步');
+        }).catch(() => {
+          alert('复制失败，请手动允许剪贴板权限后重试');
+        });
       }
 
-      function importNotes(file) {
+      function importNotesClipboard() {
+        saveAllEdits();
+        const jsonText = prompt('请粘贴便签 JSON 数据（从另一台设备的「复制到剪贴板」获取）：');
+        if (!jsonText) return;
+        processImportData(jsonText);
+      }
+
+      function importNotesFile(file) {
         const reader = new FileReader();
         reader.onload = function(e) {
-          try {
-            const data = JSON.parse(e.target.result);
-            if (!Array.isArray(data)) {
-              alert('导入失败：JSON 格式不正确，需要是一个数组。');
-              return;
-            }
-            if (!confirm(`即将导入 ${data.length} 条便签。\n\n选择「确定」将替换当前所有便签，选择「取消」将合并到现有便签中。\n\n要合并吗？`)) {
-              // 取消 = 合并（因为提示说"确定=替换, 取消=合并"）
-              // 但逻辑上confirm点确定才是替换，取消走else分支合并
-              // 合并：追加到现有，跳过 ID 冲突
-              const existingIds = new Set(notes.map(n => n.id));
-              const newNotes = data.filter(n => !existingIds.has(n.id));
-              notes = [...notes, ...newNotes];
-            } else {
-              notes = data;
-            }
-            if (editingNoteId) editingNoteId = null;
-            openColorPicker = null;
-            saveNotes();
-            renderAll();
-            $importInput.value = '';
-          } catch (err) {
-            alert('导入失败：文件内容不是有效的 JSON。\n' + err.message);
-          }
+          processImportData(e.target.result);
         };
         reader.readAsText(file);
+      }
+
+      function processImportData(jsonText) {
+        try {
+          const data = JSON.parse(jsonText);
+          if (!Array.isArray(data)) {
+            alert('导入失败：JSON 格式不正确，需要是一个数组。');
+            return;
+          }
+          if (!confirm(`即将导入 ${data.length} 条便签。\n\n选择「确定」替换当前便签\n选择「取消」合并到现有便签中`)) {
+            // 取消 = 合并
+            const existingIds = new Set(notes.map(n => n.id));
+            const newNotes = data.filter(n => !existingIds.has(n.id));
+            notes = [...notes, ...newNotes];
+          } else {
+            notes = data;
+          }
+          if (editingNoteId) editingNoteId = null;
+          openColorPicker = null;
+          saveNotes();
+          renderAll();
+          $importInput.value = '';
+          showToast(`✅ 成功导入 ${data.length} 条便签`);
+        } catch (err) {
+          alert('导入失败：内容不是有效的 JSON。\n' + err.message);
+        }
+      }
+
+      function showToast(msg) {
+        const toast = document.createElement('div');
+        toast.textContent = msg;
+        toast.style.cssText = 'position:fixed;bottom:2rem;left:50%;transform:translateX(-50%);background:#2a2d35;color:#f0f0f0;padding:0.75rem 1.5rem;border-radius:8px;border:1px solid var(--border-color);z-index:9999;font-size:0.9rem;box-shadow:0 4px 15px rgba(0,0,0,0.4);animation:fadeInUp 0.3s ease';
+        document.body.appendChild(toast);
+        setTimeout(() => { toast.remove(); }, 3000);
       }
 
       // ==================== 事件绑定 ====================
       document.getElementById('btnNewNote').addEventListener('click', createNote);
       document.getElementById('btnExport').addEventListener('click', exportNotes);
-      document.getElementById('btnImport').addEventListener('click', () => $importInput.click());
+      document.getElementById('btnImport').addEventListener('click', importNotesClipboard);
+      document.getElementById('btnImportFile').addEventListener('click', () => $importInput.click());
       $importInput.addEventListener('change', (e) => {
         if (e.target.files && e.target.files[0]) {
-          importNotes(e.target.files[0]);
+          importNotesFile(e.target.files[0]);
         }
       });
 
