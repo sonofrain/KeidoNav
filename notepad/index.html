@@ -1,0 +1,817 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>便签本 - 整点薯条</title>
+  <style>
+    :root {
+      --primary-bg: #1c1c1e;
+      --card-bg: rgba(25, 28, 36, 0.6);
+      --card-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+      --text-color: #f0f0f0;
+      --secondary-text-color: #d0d0d0;
+      --accent-color: #4a90e2;
+      --border-radius-base: 8px;
+      --border-radius-large: 12px;
+      --spacing-unit: 1rem;
+      --link-item-bg: rgba(45, 50, 60, 0.7);
+      --border-color: rgba(255, 255, 255, 0.15);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+        "Helvetica Neue", Arial, "PingFang SC", "Hiragino Sans GB",
+        "Microsoft YaHei", sans-serif;
+      color: var(--text-color);
+      line-height: 1.6;
+      padding: var(--spacing-unit);
+      background-color: var(--primary-bg);
+      min-height: 100vh;
+    }
+
+    .container {
+      max-width: 1300px;
+      margin: 0 auto;
+      padding: calc(var(--spacing-unit) * 1.5);
+      background-color: var(--card-bg);
+      border-radius: var(--border-radius-large);
+      box-shadow: var(--card-shadow);
+      border: 1px solid var(--border-color);
+      min-height: calc(100vh - 2rem);
+    }
+
+    /* ===== 顶部导航栏 ===== */
+    .top-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: var(--spacing-unit);
+      margin-bottom: calc(var(--spacing-unit) * 2);
+      padding-bottom: var(--spacing-unit);
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .top-bar h1 {
+      font-size: 1.6rem;
+      color: var(--text-color);
+      text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+      white-space: nowrap;
+    }
+    .top-bar h1 a {
+      color: inherit;
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+    .top-bar h1 a:hover { color: var(--accent-color); }
+
+    .top-bar-actions {
+      display: flex;
+      gap: 0.6rem;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    /* ===== 按钮通用样式 ===== */
+    .btn {
+      padding: 0.5rem 1rem;
+      border: none;
+      border-radius: var(--border-radius-base);
+      font-size: 0.9rem;
+      cursor: pointer;
+      font-family: inherit;
+      transition: background-color 0.2s, opacity 0.2s;
+      white-space: nowrap;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+    }
+    .btn-primary {
+      background-color: var(--accent-color);
+      color: #fff;
+    }
+    .btn-primary:hover { background-color: #3a7bc8; }
+    .btn-secondary {
+      background-color: rgba(255,255,255,0.1);
+      color: var(--text-color);
+      border: 1px solid var(--border-color);
+    }
+    .btn-secondary:hover { background-color: rgba(255,255,255,0.2); }
+    .btn-sm {
+      padding: 0.3rem 0.7rem;
+      font-size: 0.8rem;
+    }
+
+    /* ===== 搜索/筛选栏 ===== */
+    .filter-bar {
+      display: flex;
+      gap: 0.75rem;
+      margin-bottom: calc(var(--spacing-unit) * 1.5);
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .filter-bar input,
+    .filter-bar select {
+      padding: 0.5rem 0.75rem;
+      border: 1px solid var(--border-color);
+      border-radius: var(--border-radius-base);
+      background-color: rgba(255,255,255,0.08);
+      color: var(--text-color);
+      font-size: 0.9rem;
+      font-family: inherit;
+      height: 38px;
+    }
+    .filter-bar input::placeholder { color: rgba(255,255,255,0.4); }
+    .filter-bar input:focus,
+    .filter-bar select:focus {
+      outline: none;
+      border-color: var(--accent-color);
+    }
+    .filter-bar input { flex: 1; min-width: 200px; }
+    .filter-bar select { min-width: 120px; }
+
+    .note-count {
+      color: var(--secondary-text-color);
+      font-size: 0.85rem;
+      white-space: nowrap;
+      margin-left: auto;
+    }
+
+    /* ===== 便签网格 ===== */
+    .notes-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: var(--spacing-unit);
+      align-items: start;
+    }
+
+    /* ===== 单张便签 ===== */
+    .note-card {
+      background-color: var(--link-item-bg);
+      border-radius: var(--border-radius-base);
+      border: 1px solid var(--border-color);
+      padding: var(--spacing-unit);
+      position: relative;
+      transition: transform 0.2s, box-shadow 0.2s;
+      display: flex;
+      flex-direction: column;
+      min-height: 180px;
+      cursor: default;
+    }
+    .note-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(0,0,0,0.25);
+    }
+
+    /* 左侧彩色条 */
+    .note-card::before {
+      content: '';
+      position: absolute;
+      left: 0; top: 0; bottom: 0;
+      width: 4px;
+      border-radius: var(--border-radius-base) 0 0 var(--border-radius-base);
+      background-color: var(--note-color, var(--accent-color));
+    }
+
+    .note-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 0.5rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .note-title {
+      font-weight: 600;
+      font-size: 1rem;
+      color: var(--text-color);
+      flex: 1;
+      min-width: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      border: none;
+      background: transparent;
+      font-family: inherit;
+      padding: 0;
+      outline: none;
+    }
+    .note-title.editable {
+      border-bottom: 1px dashed var(--border-color);
+      background-color: rgba(255,255,255,0.03);
+      padding: 0.15rem 0.25rem;
+      border-radius: 3px;
+    }
+
+    .note-actions {
+      display: flex;
+      gap: 0.3rem;
+      flex-shrink: 0;
+    }
+    .note-actions button {
+      background: none;
+      border: none;
+      color: var(--secondary-text-color);
+      cursor: pointer;
+      font-size: 0.95rem;
+      padding: 2px 5px;
+      border-radius: 4px;
+      transition: color 0.15s, background 0.15s;
+      line-height: 1;
+    }
+    .note-actions button:hover {
+      color: #ff6b6b;
+      background: rgba(255,255,255,0.1);
+    }
+    .note-actions .btn-color-pick:hover { color: #ffd93d; }
+
+    .note-category {
+      font-size: 0.75rem;
+      color: var(--secondary-text-color);
+      margin-bottom: 0.5rem;
+      opacity: 0.7;
+    }
+
+    .note-content {
+      font-size: 0.85rem;
+      color: var(--secondary-text-color);
+      flex: 1;
+      min-height: 3em;
+      outline: none;
+      border: none;
+      background: transparent;
+      font-family: inherit;
+      resize: none;
+      overflow: hidden;
+      line-height: 1.6;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+    .note-content.editable {
+      border: 1px dashed var(--border-color);
+      background-color: rgba(255,255,255,0.03);
+      padding: 0.4rem;
+      border-radius: 4px;
+      margin: 0.2rem 0;
+    }
+
+    .note-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 0.6rem;
+      font-size: 0.7rem;
+      color: var(--secondary-text-color);
+      opacity: 0.6;
+    }
+
+    /* ===== 颜色选择器弹窗 ===== */
+    .color-picker-popup {
+      position: absolute;
+      top: 2.2rem;
+      right: 0;
+      background: #2a2d35;
+      border: 1px solid var(--border-color);
+      border-radius: var(--border-radius-base);
+      padding: 0.5rem;
+      display: flex;
+      gap: 0.35rem;
+      z-index: 10;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.4);
+    }
+    .color-option {
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      cursor: pointer;
+      border: 2px solid transparent;
+      transition: border-color 0.15s, transform 0.15s;
+    }
+    .color-option:hover,
+    .color-option.active {
+      border-color: #fff;
+      transform: scale(1.15);
+    }
+
+    /* ===== 导入/导出隐藏 input ===== */
+    .hidden-input {
+      display: none;
+    }
+
+    /* ===== 空状态 ===== */
+    .empty-state {
+      grid-column: 1 / -1;
+      text-align: center;
+      padding: 3rem 1rem;
+      color: var(--secondary-text-color);
+      opacity: 0.6;
+    }
+    .empty-state .icon { font-size: 3rem; display: block; margin-bottom: 0.5rem; }
+    .empty-state p { font-size: 1rem; }
+
+    /* ===== 响应式 ===== */
+    @media (max-width: 768px) {
+      body { padding: calc(var(--spacing-unit) * 0.5); }
+      .container { padding: var(--spacing-unit); }
+      .top-bar { flex-direction: column; align-items: flex-start; }
+      .notes-grid { grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); }
+    }
+    @media (max-width: 480px) {
+      .notes-grid { grid-template-columns: 1fr; }
+      .filter-bar { flex-direction: column; align-items: stretch; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- 顶部栏 -->
+    <div class="top-bar">
+      <h1><a href="../index.html">整点薯条</a> / 📒 便签本</h1>
+      <div class="top-bar-actions">
+        <button class="btn btn-primary" id="btnNewNote" title="新建便签">＋ 新建便签</button>
+        <button class="btn btn-secondary" id="btnExport" title="导出为 JSON 文件">📥 导出</button>
+        <button class="btn btn-secondary" id="btnImport" title="从 JSON 文件导入">📤 导入</button>
+        <input type="file" id="importFileInput" class="hidden-input" accept=".json" />
+      </div>
+    </div>
+
+    <!-- 筛选栏 -->
+    <div class="filter-bar">
+      <input type="text" id="searchInput" placeholder="🔍 搜索便签标题或内容..." />
+      <select id="categoryFilter">
+        <option value="">所有分类</option>
+      </select>
+      <button class="btn btn-secondary btn-sm" id="btnClearFilter">清除筛选</button>
+      <span class="note-count" id="noteCount">共 0 条便签</span>
+    </div>
+
+    <!-- 便签网格 -->
+    <div class="notes-grid" id="notesGrid">
+      <!-- 动态渲染 -->
+    </div>
+  </div>
+
+  <script>
+    (function() {
+      // ==================== 状态 ====================
+      const STORAGE_KEY = 'keidonav_notepad_notes';
+      let notes = [];
+      let editingNoteId = null;   // 当前正在编辑标题/内容的便签 ID
+      let openColorPicker = null; // 当前打开颜色选择器的便签 ID
+      let activeCategoryFilter = '';
+      let activeSearchQuery = '';
+
+      // ==================== DOM 引用 ====================
+      const $grid = document.getElementById('notesGrid');
+      const $searchInput = document.getElementById('searchInput');
+      const $categoryFilter = document.getElementById('categoryFilter');
+      const $noteCount = document.getElementById('noteCount');
+      const $importInput = document.getElementById('importFileInput');
+
+      // ==================== 颜色预设 ====================
+      const COLOR_PRESETS = [
+        '#4a90e2', '#e24a4a', '#4ae24a', '#e2c84a', '#e24ac8',
+        '#4ae2c8', '#c84ae2', '#e28a4a', '#4a8ae2', '#8ae24a',
+        '#e24a8a', '#4ae2e2', '#a4a4a4', '#ff6b6b', '#ffd93d',
+        '#6bcb77', '#4d96ff', '#ff922b', '#20c997', '#cc5de8'
+      ];
+
+      // ==================== 数据加载 ====================
+      function loadNotes() {
+        // 从 localStorage 读取
+        const stored = localStorage.getItem(STORAGE_KEY);
+        if (stored) {
+          try {
+            notes = JSON.parse(stored);
+            if (!Array.isArray(notes)) notes = [];
+            return;
+          } catch (e) {
+            console.warn('解析本地便签数据失败，将尝试加载默认数据');
+          }
+        }
+        
+        // localStorage 无数据，从 data.json 加载初始数据
+        fetch('data.json')
+          .then(r => r.json())
+          .then(data => {
+            notes = data;
+            saveNotes();
+            renderAll();
+          })
+          .catch(() => {
+            notes = [];
+            saveNotes();
+            renderAll();
+          });
+      }
+
+      function saveNotes() {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(notes));
+      }
+
+      // ==================== 辅助函数 ====================
+      function generateId() {
+        return Date.now() + Math.floor(Math.random() * 10000);
+      }
+
+      function nowISO() {
+        return new Date().toISOString();
+      }
+
+      // ==================== 获取分类列表 ====================
+      function getCategories() {
+        const cats = new Set();
+        notes.forEach(n => {
+          if (n.category && n.category.trim()) cats.add(n.category.trim());
+        });
+        return Array.from(cats).sort();
+      }
+
+      // ==================== 筛选 ====================
+      function getFilteredNotes() {
+        let filtered = [...notes];
+        if (activeCategoryFilter) {
+          filtered = filtered.filter(n => n.category === activeCategoryFilter);
+        }
+        if (activeSearchQuery.trim()) {
+          const q = activeSearchQuery.trim().toLowerCase();
+          filtered = filtered.filter(n =>
+            (n.title && n.title.toLowerCase().includes(q)) ||
+            (n.content && n.content.toLowerCase().includes(q))
+          );
+        }
+        // 按更新时间倒序
+        filtered.sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt));
+        return filtered;
+      }
+
+      // ==================== 渲染 ====================
+      function renderCategoryOptions() {
+        const cats = getCategories();
+        const currentVal = $categoryFilter.value;
+        $categoryFilter.innerHTML = '<option value="">所有分类</option>';
+        cats.forEach(cat => {
+          $categoryFilter.innerHTML += `<option value="${escapeHtml(cat)}">${escapeHtml(cat)}</option>`;
+        });
+        if (activeCategoryFilter) {
+          $categoryFilter.value = activeCategoryFilter;
+        } else if (currentVal) {
+          $categoryFilter.value = currentVal;
+        }
+      }
+
+      function renderAll() {
+        const filtered = getFilteredNotes();
+        $noteCount.textContent = `共 ${filtered.length} 条便签`;
+        renderCategoryOptions();
+
+        if (filtered.length === 0) {
+          $grid.innerHTML = `
+            <div class="empty-state">
+              <span class="icon">📭</span>
+              <p>${notes.length === 0 ? '还没有便签，点击「＋ 新建便签」开始记录吧！' : '没有匹配的便签'}</p>
+            </div>`;
+          return;
+        }
+
+        $grid.innerHTML = filtered.map(note => renderNoteCard(note)).join('');
+      }
+
+      function renderNoteCard(note) {
+        const isEditing = editingNoteId === note.id;
+        const color = note.color || 'var(--accent-color)';
+        const title = note.title || '';
+        const content = note.content || '';
+        const category = note.category || '';
+        const updatedAt = formatDate(note.updatedAt);
+
+        let colorPickerHTML = '';
+        if (openColorPicker === note.id) {
+          colorPickerHTML = `<div class="color-picker-popup" onclick="event.stopPropagation()">
+            ${COLOR_PRESETS.map(c =>
+              `<span class="color-option${c === color ? ' active' : ''}"
+                     style="background:${c}"
+                     data-color="${c}"
+                     onclick="window._notepadSetColor(${note.id}, '${c}')"
+                     title="${c}"></span>`
+            ).join('')}
+          </div>`;
+        }
+
+        return `
+          <div class="note-card" style="--note-color: ${color}" data-id="${note.id}">
+            <div class="note-header">
+              ${isEditing
+                ? `<input class="note-title editable" value="${escapeHtml(title)}"
+                     id="titleInput_${note.id}"
+                     onkeydown="window._notepadHandleTitleKey(event, ${note.id})"
+                     onblur="window._notepadSaveTitle(${note.id})"
+                     onclick="event.stopPropagation()" />`
+                : `<span class="note-title" onclick="window._notepadStartEdit(${note.id}, 'title')"
+                     title="点击编辑标题">${escapeHtml(title) || '无标题'}</span>`
+              }
+              <div class="note-actions" style="position:relative">
+                <button class="btn-color-pick" title="更改颜色"
+                  onclick="event.stopPropagation(); window._notepadToggleColorPicker(${note.id})">🎨</button>
+                <button title="删除便签"
+                  onclick="window._notepadDelete(${note.id})">✕</button>
+                ${colorPickerHTML}
+              </div>
+            </div>
+            <div class="note-category">${escapeHtml(category)}</div>
+            ${isEditing
+              ? `<textarea class="note-content editable"
+                   id="contentInput_${note.id}"
+                   onkeydown="window._notepadHandleContentKey(event, ${note.id})"
+                   onblur="window._notepadSaveContent(${note.id})"
+                   onclick="event.stopPropagation()"
+                   rows="4">${escapeHtml(content)}</textarea>`
+              : `<div class="note-content" onclick="window._notepadStartEdit(${note.id}, 'content')"
+                   title="点击编辑内容">${escapeHtml(content) || '点击添加内容...'}</div>`
+            }
+            <div class="note-footer">
+              <span class="note-time">${updatedAt}</span>
+            </div>
+          </div>`;
+      }
+
+      function escapeHtml(str) {
+        if (!str) return '';
+        const div = document.createElement('div');
+        div.textContent = str;
+        return div.innerHTML;
+      }
+
+      function formatDate(isoStr) {
+        if (!isoStr) return '';
+        const d = new Date(isoStr);
+        if (isNaN(d.getTime())) return '';
+        const pad = n => String(n).padStart(2, '0');
+        return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
+      }
+
+      // ==================== 便签操作 ====================
+      function createNote() {
+        // 如果已有便签处于编辑状态，先保存
+        if (editingNoteId) {
+          saveAllEdits();
+        }
+
+        const note = {
+          id: generateId(),
+          title: '',
+          content: '',
+          category: '',
+          color: COLOR_PRESETS[Math.floor(Math.random() * COLOR_PRESETS.length)],
+          createdAt: nowISO(),
+          updatedAt: nowISO()
+        };
+        notes.unshift(note);
+        saveNotes();
+        editingNoteId = note.id;
+        renderAll();
+
+        // 自动聚焦标题输入框
+        setTimeout(() => {
+          const input = document.getElementById('titleInput_' + note.id);
+          if (input) input.focus();
+        }, 50);
+      }
+
+      function deleteNote(id) {
+        if (!confirm('确定要删除这条便签吗？')) return;
+        
+        if (editingNoteId === id) editingNoteId = null;
+        if (openColorPicker === id) openColorPicker = null;
+        
+        notes = notes.filter(n => n.id !== id);
+        saveNotes();
+        renderAll();
+      }
+
+      function startEdit(id, field) {
+        // 如果正在编辑另一个不同的便签，先保存
+        if (editingNoteId && editingNoteId !== id) {
+          saveAllEdits();
+        }
+        editingNoteId = id;
+        openColorPicker = null;
+        renderAll();
+
+        setTimeout(() => {
+          if (field === 'title') {
+            const input = document.getElementById('titleInput_' + id);
+            if (input) { input.focus(); input.select(); }
+          } else {
+            const textarea = document.getElementById('contentInput_' + id);
+            if (textarea) { textarea.focus(); }
+          }
+        }, 50);
+      }
+
+      function saveAllEdits() {
+        if (!editingNoteId) return;
+        
+        const titleInput = document.getElementById('titleInput_' + editingNoteId);
+        const contentInput = document.getElementById('contentInput_' + editingNoteId);
+        
+        const note = notes.find(n => n.id === editingNoteId);
+        if (note) {
+          if (titleInput) note.title = titleInput.value.trim();
+          if (contentInput) note.content = contentInput.value.trim();
+          note.updatedAt = nowISO();
+        }
+        editingNoteId = null;
+        saveNotes();
+      }
+
+      function saveTitle(id) {
+        const input = document.getElementById('titleInput_' + id);
+        const note = notes.find(n => n.id === id);
+        if (note && input) {
+          note.title = input.value.trim();
+          note.updatedAt = nowISO();
+        }
+        editingNoteId = null;
+        saveNotes();
+        renderAll();
+      }
+
+      function saveContent(id) {
+        const textarea = document.getElementById('contentInput_' + id);
+        const note = notes.find(n => n.id === id);
+        if (note && textarea) {
+          note.content = textarea.value.trim();
+          note.updatedAt = nowISO();
+        }
+        editingNoteId = null;
+        saveNotes();
+        renderAll();
+      }
+
+      function handleTitleKey(event, id) {
+        if (event.key === 'Enter' && !event.shiftKey) {
+          event.preventDefault();
+          saveTitle(id);
+        }
+        if (event.key === 'Escape') {
+          editingNoteId = null;
+          renderAll();
+        }
+      }
+
+      function handleContentKey(event, id) {
+        if ((event.key === 'Enter' && !event.shiftKey) && (event.ctrlKey || event.metaKey)) {
+          event.preventDefault();
+          saveContent(id);
+        }
+        if (event.key === 'Escape') {
+          editingNoteId = null;
+          renderAll();
+        }
+      }
+
+      function toggleColorPicker(id) {
+        if (editingNoteId && editingNoteId !== id) {
+          saveAllEdits();
+        }
+        openColorPicker = (openColorPicker === id) ? null : id;
+        renderAll();
+      }
+
+      function setColor(id, color) {
+        const note = notes.find(n => n.id === id);
+        if (note) {
+          note.color = color;
+          note.updatedAt = nowISO();
+        }
+        openColorPicker = null;
+        saveNotes();
+        renderAll();
+      }
+
+      // ==================== 导入/导出 ====================
+      function exportNotes() {
+        const data = JSON.stringify(notes, null, 2);
+        const blob = new Blob([data], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `notepad-backup-${new Date().toISOString().slice(0,10)}.json`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+      }
+
+      function importNotes(file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          try {
+            const data = JSON.parse(e.target.result);
+            if (!Array.isArray(data)) {
+              alert('导入失败：JSON 格式不正确，需要是一个数组。');
+              return;
+            }
+            if (!confirm(`即将导入 ${data.length} 条便签。\n\n选择「确定」将替换当前所有便签，选择「取消」将合并到现有便签中。\n\n要合并吗？`)) {
+              // 取消 = 合并（因为提示说"确定=替换, 取消=合并"）
+              // 但逻辑上confirm点确定才是替换，取消走else分支合并
+              // 合并：追加到现有，跳过 ID 冲突
+              const existingIds = new Set(notes.map(n => n.id));
+              const newNotes = data.filter(n => !existingIds.has(n.id));
+              notes = [...notes, ...newNotes];
+            } else {
+              notes = data;
+            }
+            if (editingNoteId) editingNoteId = null;
+            openColorPicker = null;
+            saveNotes();
+            renderAll();
+            $importInput.value = '';
+          } catch (err) {
+            alert('导入失败：文件内容不是有效的 JSON。\n' + err.message);
+          }
+        };
+        reader.readAsText(file);
+      }
+
+      // ==================== 事件绑定 ====================
+      document.getElementById('btnNewNote').addEventListener('click', createNote);
+      document.getElementById('btnExport').addEventListener('click', exportNotes);
+      document.getElementById('btnImport').addEventListener('click', () => $importInput.click());
+      $importInput.addEventListener('change', (e) => {
+        if (e.target.files && e.target.files[0]) {
+          importNotes(e.target.files[0]);
+        }
+      });
+
+      $searchInput.addEventListener('input', () => {
+        activeSearchQuery = $searchInput.value;
+        renderAll();
+      });
+
+      $categoryFilter.addEventListener('change', () => {
+        activeCategoryFilter = $categoryFilter.value;
+        renderAll();
+      });
+
+      document.getElementById('btnClearFilter').addEventListener('click', () => {
+        activeSearchQuery = '';
+        activeCategoryFilter = '';
+        $searchInput.value = '';
+        $categoryFilter.value = '';
+        renderAll();
+      });
+
+      // 点击页面其他区域关闭颜色选择器并保存编辑
+      document.addEventListener('click', function(e) {
+        const clickedOnCard = e.target.closest('.note-card');
+        const clickedOnColorPicker = e.target.closest('.color-picker-popup');
+
+        // 如果点击了颜色选择器内的颜色，setColor 已经处理了
+        if (clickedOnColorPicker) return;
+
+        // 关闭颜色选择器
+        if (openColorPicker && !clickedOnCard) {
+          openColorPicker = null;
+          renderAll();
+          return;
+        }
+
+        // 如果点击的是便签卡之外的区域
+        if (!clickedOnCard && editingNoteId) {
+          saveAllEdits();
+          renderAll();
+        }
+      });
+
+      // ==================== 全局函数暴露 ====================
+      window._notepadStartEdit = startEdit;
+      window._notepadSaveTitle = saveTitle;
+      window._notepadSaveContent = saveContent;
+      window._notepadHandleTitleKey = handleTitleKey;
+      window._notepadHandleContentKey = handleContentKey;
+      window._notepadDelete = deleteNote;
+      window._notepadToggleColorPicker = toggleColorPicker;
+      window._notepadSetColor = setColor;
+
+      // ==================== 键盘快捷键 ====================
+      document.addEventListener('keydown', function(e) {
+        // Ctrl+N 新建便签
+        if ((e.ctrlKey || e.metaKey) && e.key === 'n') {
+          e.preventDefault();
+          createNote();
+        }
+      });
+
+      // ==================== 初始化 ====================
+      loadNotes();
+      renderAll();
+    })();
+  </script>
+</body>
+</html>
