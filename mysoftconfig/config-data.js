@@ -41,6 +41,25 @@ const configData = {
           ]
         }
       ]
+    },
+    {
+      "id": "system-tools",
+      "name": "系统工具",
+      "icon": "⚙️",
+      "items": [
+        {
+          "id": "huorong-throttlestop",
+          "name": "火绒安全软件",
+          "description": "放行 ThrottleStop 驱动，解决驱动被火绒漏洞拦截的问题",
+          "lastModified": "2026-07-19",
+          "tags": ["火绒", "ThrottleStop", "驱动", "安全"],
+          "settings": [
+            "进入火绒设置 → 系统防护 → 漏洞驱动拦截",
+            "添加例外驱动，填入SHA1哈希值：82ED942A52CDCF120A8919730E00BA37619661A3",
+            "保存即可，ThrottleStop 驱动将不再被拦截"
+          ]
+        }
+      ]
     }
   ]
 };
