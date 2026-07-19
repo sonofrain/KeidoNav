@@ -101,13 +101,26 @@ document.addEventListener('DOMContentLoaded', () => {
             card.appendChild(header);
             card.appendChild(details);
             
-            // 点击展开/收起（选中文本时不触发）
+            // 点击展开/收起（双击选中文本时不触发，延迟判断以区分单击和双击）
             card.addEventListener('click', () => {
+                // 如果已经有选中文本，不触发
                 const selection = window.getSelection();
                 if (selection && selection.toString().length > 0) {
                     return;
                 }
-                card.classList.toggle('expanded');
+                // 延迟切换，如果短时间内发生双击则取消
+                const toggleTimer = setTimeout(() => {
+                    card.classList.toggle('expanded');
+                }, 200);
+                card._toggleTimer = toggleTimer;
+            });
+            
+            card.addEventListener('dblclick', () => {
+                // 双击：取消单击的展开/收起
+                if (card._toggleTimer) {
+                    clearTimeout(card._toggleTimer);
+                    card._toggleTimer = null;
+                }
             });
             
             contentArea.appendChild(card);
