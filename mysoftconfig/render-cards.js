@@ -101,8 +101,12 @@ document.addEventListener('DOMContentLoaded', () => {
             card.appendChild(header);
             card.appendChild(details);
             
-            // 点击展开/收起
+            // 点击展开/收起（选中文本时不触发）
             card.addEventListener('click', () => {
+                const selection = window.getSelection();
+                if (selection && selection.toString().length > 0) {
+                    return;
+                }
                 card.classList.toggle('expanded');
             });
             
