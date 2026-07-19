@@ -52,16 +52,15 @@ body {
 .software-card {
     background: #ffffff;
     margin-bottom: 12px;
-    padding: 16px 20px;
     border-radius: 8px;
     border-left: 4px solid #667eea;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
     cursor: pointer;
-    transition: all 0.2s ease;
+    transition: border-left-color 0.3s ease, box-shadow 0.2s ease;
+    overflow: hidden;
 }
 .software-card:hover {
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
-    transform: translateX(4px);
 }
 .software-card.expanded {
     border-left-color: #764ba2;
@@ -70,12 +69,15 @@ body {
     display: flex;
     align-items: center;
     justify-content: space-between;
+    padding: 16px 20px;
+    user-select: none;
 }
 .card-title {
     display: flex;
     align-items: center;
     gap: 12px;
     flex: 1;
+    min-width: 0;
 }
 .card-title h3 {
     font-size: 1.2em;
@@ -91,6 +93,7 @@ body {
     font-size: 0.75em;
     font-weight: 600;
     margin-left: 8px;
+    flex-shrink: 0;
 }
 .card-tags {
     display: flex;
@@ -117,25 +120,40 @@ body {
     font-size: 1.2em;
     transition: transform 0.3s ease;
     margin-left: 10px;
+    flex-shrink: 0;
 }
 .software-card.expanded .expand-icon {
     transform: rotate(180deg);
 }
 .card-details {
-    max-height: 0;
+    display: grid;
+    grid-template-rows: 0fr;
+    transition: grid-template-rows 0.35s ease;
+}
+.card-details-inner {
     overflow: hidden;
-    transition: max-height 0.3s ease;
+}
+.card-details-inner > * {
+    opacity: 0;
+    transform: translateY(-4px);
+    transition: opacity 0.25s ease 0.05s, transform 0.25s ease 0.05s;
 }
 .software-card.expanded .card-details {
-    max-height: 500px;
-    margin-top: 16px;
+    grid-template-rows: 1fr;
+}
+.software-card.expanded .card-details-inner > * {
+    opacity: 1;
+    transform: translateY(0);
+}
+.details-content {
+    margin: 0 20px 16px 20px;
     padding-top: 16px;
     border-top: 1px solid #f0f0f0;
 }
 .card-description {
     color: #666;
     font-size: 0.95em;
-    margin-bottom: 12px;
+    margin: 0 0 12px 0;
 }
 .settings-list {
     list-style: none;

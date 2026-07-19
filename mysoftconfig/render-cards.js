@@ -73,10 +73,16 @@ document.addEventListener('DOMContentLoaded', () => {
             const details = document.createElement('div');
             details.className = 'card-details';
             
+            const detailsInner = document.createElement('div');
+            detailsInner.className = 'card-details-inner';
+            
+            const detailsContent = document.createElement('div');
+            detailsContent.className = 'details-content';
+            
             const description = document.createElement('p');
             description.className = 'card-description';
             description.textContent = item.description;
-            details.appendChild(description);
+            detailsContent.appendChild(description);
             
             if (item.settings && item.settings.length > 0) {
                 const settingsList = document.createElement('ul');
@@ -86,8 +92,11 @@ document.addEventListener('DOMContentLoaded', () => {
                     listItem.textContent = setting;
                     settingsList.appendChild(listItem);
                 });
-                details.appendChild(settingsList);
+                detailsContent.appendChild(settingsList);
             }
+            
+            detailsInner.appendChild(detailsContent);
+            details.appendChild(detailsInner);
             
             card.appendChild(header);
             card.appendChild(details);
